@@ -1,0 +1,22 @@
+[
+    [
+        "sensor",
+        "ss",
+        "sensor"
+    ],
+    [
+        "sensor",
+        "sa",
+        "actuator"
+    ],
+    [
+        "actuator",
+        "as",
+        "sensor"
+    ],
+    [
+        "actuator",
+        "aa",
+        "actuator"
+    ]
+]
