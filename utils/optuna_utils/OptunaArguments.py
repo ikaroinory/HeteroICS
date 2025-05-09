@@ -23,10 +23,10 @@ class OptunaArguments:
         self.slide_stride: int = 1
         # best: 5
         self.k_dict: dict[tuple[str, str, str], int] = {
-            ('sensor', 'ss', 'sensor'): trial.suggest_int('k_ss', 3, 10),
-            ('sensor', 'sa', 'actuator'): trial.suggest_int('k_sa', 3, 10),
-            ('actuator', 'as', 'sensor'): trial.suggest_int('k_as', 3, 10),
-            ('actuator', 'aa', 'actuator'): trial.suggest_int('k_aa', 3, 10)
+            ('sensor', 'ss', 'sensor'): trial.suggest_int('k_ss', 1, 10),
+            ('sensor', 'sa', 'actuator'): trial.suggest_int('k_sa', 1, 10),
+            ('actuator', 'as', 'sensor'): trial.suggest_int('k_as', 1, 10),
+            ('actuator', 'aa', 'actuator'): trial.suggest_int('k_aa', 1, 10)
         }
 
         self.d_hidden: int = trial.suggest_categorical('d_hidden', [64, 128, 256, 512])  # best: 256
