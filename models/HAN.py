@@ -10,7 +10,8 @@ from torch_geometric.utils import softmax
 class HAN(MessagePassing):
     def __init__(
         self,
-        sequence_len: int,
+        x_input: int,
+        v_input: int,
         d_output: int,
         num_heads: int,
         dropout: float,
@@ -24,18 +25,22 @@ class HAN(MessagePassing):
         self.d_output = d_output
         self.num_heads = num_heads
 
-        self.W_phi = nn.ModuleDict({node_type: nn.Linear(sequence_len, d_output, bias=False) for node_type in self.node_types})
-        self.w_phi = nn.ModuleDict({'->'.join(edge_type): nn.Linear(d_output * 4, 1, bias=False) for edge_type in edge_types})
-        self.w_pi_new = nn.ParameterDict({
-            '->'.join(edge_type): nn.Parameter(torch.zeros([1, self.num_heads, (self.d_output // self.num_heads) * 4]))
-            for edge_type in edge_types
-        })
-        self.process_layer = nn.ModuleDict({
-            node_type: nn.Sequential(
-                nn.BatchNorm1d(d_output),
-                nn.ReLU()
-            )
-            for node_type in self.node_types}
+        self.W_x_phi = nn.ModuleDict({node_type: nn.Linear(x_input, d_output) for node_type in self.node_types})
+        self.W_v_phi = nn.ModuleDict({node_type: nn.Linear(v_input, d_output) for node_type in self.node_types})
+        self.w_pi = nn.ParameterDict(
+            {
+                '->'.join(edge_type): nn.Parameter(torch.zeros([1, self.num_heads, (self.d_output // self.num_heads) * 4]))
+                for edge_type in edge_types
+            }
+        )
+        self.process_layer = nn.ModuleDict(
+            {
+                node_type: nn.Sequential(
+                    nn.BatchNorm1d(d_output),
+                    nn.ReLU()
+                )
+                for node_type in self.node_types
+            }
         )
         self.semantic_attention = nn.Sequential(
             nn.Linear(d_output, d_output),
@@ -52,15 +57,16 @@ class HAN(MessagePassing):
     def reset_parameters(self):
         super().reset_parameters()
 
-        glorot(self.w_pi_new)
+        glorot(self.w_pi)
 
     def forward(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[str, Tensor]:
         x_prime_dict = {}
-        g_dict = {}
+        v_prime_dict = {}
         for node_type, x in x_dict.items():
             # x: [num_nodes * batch_size, sequence_len]
-            x_prime_dict[node_type] = self.W_phi[node_type](x)  # [num_nodes, d_output]
-            g_dict[node_type] = torch.cat([v_dict[node_type], x_prime_dict[node_type]], dim=-1)  # [num_nodes, d_output * 2]
+            x_prime_dict[node_type] = self.W_x_phi[node_type](x)  # [num_nodes, d_output]
+        for node_type, v in v_dict.items():
+            v_prime_dict[node_type] = self.W_v_phi[node_type](v)  # [num_nodes, d_output]
 
         z_list_dict: dict[str, list[Tensor]] = defaultdict(list)
         for edge_type, edge_index in edge_index_dict.items():
@@ -71,7 +77,7 @@ class HAN(MessagePassing):
             z_list: Tensor = self.propagate(
                 edge_index,
                 x=(x_prime_dict[src_type], x_prime_dict[dst_type]),
-                v=(v_dict[src_type], v_dict[dst_type]),
+                v=(v_prime_dict[src_type], v_prime_dict[dst_type]),
                 edge_type=edge_type
             )
             z_list = self.leaky_relu(z_list)  # [num_nodes, d_output]
@@ -102,7 +108,7 @@ class HAN(MessagePassing):
 
         edge_type_str = '->'.join(edge_type)
 
-        pi = self.leaky_relu(torch.einsum('nhd,nhd->nh', g, self.w_pi_new[edge_type_str]))
+        pi = self.leaky_relu(torch.einsum('nhd,nhd->nh', g, self.w_pi[edge_type_str]))
         alpha = softmax(pi, index=edge_index_i)
         alpha = self.dropout(alpha)
 

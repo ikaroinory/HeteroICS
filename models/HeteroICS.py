@@ -32,7 +32,7 @@ class HeteroICS(nn.Module):
         self.k_dict = k_dict
 
         self.embedding_layer = nn.Embedding(num_embeddings=self.num_nodes, embedding_dim=d_hidden)
-        self.han = HAN(sequence_len, d_hidden, num_heads, dropout, node_indices=node_indices, edge_types=edge_types)
+        self.han = HAN(sequence_len, d_hidden, d_hidden, num_heads, dropout, node_indices=node_indices, edge_types=edge_types)
         self.output_layer = nn.Sequential(
             nn.BatchNorm1d(d_hidden),
             nn.ReLU(),
