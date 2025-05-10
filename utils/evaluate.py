@@ -5,7 +5,7 @@ from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_sco
 from torch import Tensor
 
 
-def get_total_error_score(result: tuple[Tensor, Tensor, Tensor], smooth_window: int, epsilon: float = 1e-2) -> Tensor:
+def get_total_error_score(result: tuple[Tensor, Tensor, Tensor], smooth_window: int, epsilon: float = 1e-8) -> Tensor:
     predict_result, actual_result, _ = result
 
     delta = torch.abs(predict_result - actual_result)
