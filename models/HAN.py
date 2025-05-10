@@ -88,7 +88,7 @@ class HAN(MessagePassing):
 
             output = torch.sum(z_all * beta.expand(-1, -1, self.d_output), dim=0)
 
-            z_dict[node_type] = self.process_layer[node_type](output)
+            z_dict[node_type] = self.process_layer[node_type](output + sum(z_list))
 
         return z_dict
 
