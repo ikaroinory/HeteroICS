@@ -19,7 +19,7 @@ class OptunaArguments:
         self.batch_size: int = trial.suggest_categorical('batch_size', [32, 64, 128, 256, 512])  # best: 256
         self.epochs: int = 1000
 
-        self.slide_window: int = trial.suggest_int('slide_window', 5, 50, step=5)
+        self.slide_window: int = trial.suggest_int('slide_window', 5, 50)
         self.slide_stride: int = 1
         # best: 5
         self.k_dict: dict[tuple[str, str, str], int] = {
@@ -38,6 +38,6 @@ class OptunaArguments:
         self.lr: float = trial.suggest_float('lr', 1e-4, 1e-2, log=True)  # best: 0.001
         self.dropout: float = trial.suggest_float('dropout', 0, 0.5)  # best: 0
 
-        self.early_stop: int = 50
+        self.early_stop: int = 20
 
         self.log: bool = False
