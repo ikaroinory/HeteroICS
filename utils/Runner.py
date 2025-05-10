@@ -28,8 +28,8 @@ class Runner:
 
         self.start_time = datetime.now().strftime('%Y%m%d_%H%M%S')
 
-        self.log_path = f'logs/{self.args.dataset}/{self.start_time}.log'
-        self.model_path = f'saves/{self.args.dataset}/{self.start_time}.pth'
+        self.log_path = Path(f'logs/{self.args.dataset}/{self.start_time}.log')
+        self.model_path = Path(f'saves/{self.args.dataset}/{self.start_time}.pth')
 
         Logger.init(self.log_path if self.args.log else None)
 
@@ -201,7 +201,7 @@ class Runner:
             if no_improve_count >= self.args.early_stop:
                 break
 
-        Path(self.model_path).parent.mkdir(parents=True, exist_ok=True)
+        self.model_path.parent.mkdir(parents=True, exist_ok=True)
         torch.save(best_model_weights, self.model_path)
 
         Logger.info(f'Best epoch: {best_epoch}')
@@ -219,7 +219,7 @@ class Runner:
 
         Logger.info(f' - Test loss: {test_loss:.8f}')
 
-        f1, precision, recall, auc = get_metrics(test_result, valid_result if self.args.report == 'label' else None)
+        f1, precision, recall, auc = get_metrics(test_result, valid_result if self.args.report == 'label' else None, self.args.slide_window)
 
         Logger.info(f' - F1 score: {f1:.4f}')
         Logger.info(f' - Precision: {precision:.4f}')
