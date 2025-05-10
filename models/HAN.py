@@ -82,7 +82,7 @@ class HAN(MessagePassing):
 
         z_dict = {}
         for node_type, z_list in z_list_dict.items():
-            z_all = torch.stack(z_list, dim=0)
+            z_all = torch.stack(tuple(z_list), dim=0)
 
             beta = self.semantic_attention(z_all)
 
