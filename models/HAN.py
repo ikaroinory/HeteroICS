@@ -58,7 +58,8 @@ class HAN(MessagePassing):
 
         glorot(self.w_pi)
 
-    def forward(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[str, Tensor]:
+    def forward(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[
+        str, Tensor]:
         x_prime_dict = {}
         for node_type, x in x_dict.items():
             # x: [num_nodes * batch_size, sequence_len]
@@ -88,7 +89,7 @@ class HAN(MessagePassing):
 
             output = torch.sum(z_all * beta.expand(-1, -1, self.d_output), dim=0)
 
-            z_dict[node_type] = self.process_layer[node_type](output + sum(z_list))
+            z_dict[node_type] = self.process_layer[node_type](output)
 
         return z_dict
 
@@ -110,5 +111,6 @@ class HAN(MessagePassing):
 
         return (alpha.view(-1, self.num_heads, 1) * x_j_heads).reshape(-1, self.d_output)
 
-    def __call__(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[str, Tensor]:
+    def __call__(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[
+        str, Tensor]:
         return super().__call__(x_dict, v_dict, edge_index_dict)
