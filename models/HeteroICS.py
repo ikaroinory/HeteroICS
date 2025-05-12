@@ -97,12 +97,9 @@ class HeteroICS(nn.Module):
         for edge_type in self.edge_types:
             src_type, _, dst_type = edge_type
 
-            k = self.k_dict[edge_type] + 1 if src_type == dst_type else self.k_dict[edge_type]
+            k = self.k_dict[edge_type] + 1
 
             edges = self.__get_edges(v[self.node_indices[src_type]], v[self.node_indices[dst_type]], k)
-
-            if src_type != dst_type:
-                edges = torch.cat([edges, edges[1].repeat(2, 1)], dim=-1)
 
             edges = edges.repeat(1, batch_size)
 
