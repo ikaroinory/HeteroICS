@@ -81,8 +81,8 @@ class HAN(MessagePassing):
             z_list_dict[dst_type].append(z)
 
         z_dict = {}
-        for node_type, z in z_list_dict.items():
-            z_all = torch.stack(tuple(z), dim=0)
+        for node_type, z_list in z_list_dict.items():
+            z_all = torch.stack(tuple(z_list), dim=0)
 
             beta = self.semantic_attention(z_all)
 
