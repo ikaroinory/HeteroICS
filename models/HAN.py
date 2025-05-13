@@ -58,8 +58,7 @@ class HAN(MessagePassing):
 
         glorot(self.w_pi)
 
-    def forward(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[
-        str, Tensor]:
+    def forward(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[str, Tensor]:
         x_prime_dict = {}
         for node_type, x in x_dict.items():
             # x: [num_nodes * batch_size, sequence_len]
@@ -71,19 +70,19 @@ class HAN(MessagePassing):
 
             # print(g_dict[src_type][edge_index[0]])  # xj
             # print(g_dict[dst_type][edge_index[1]])  # xi
-            z_list: Tensor = self.propagate(
+            z: Tensor = self.propagate(
                 edge_index,
                 x=(x_prime_dict[src_type], x_prime_dict[dst_type]),
                 v=(v_dict[src_type], v_dict[dst_type]),
                 edge_type=edge_type
             )
-            z_list = self.leaky_relu(z_list)  # [num_nodes, d_output]
+            z = self.leaky_relu(z)  # [num_nodes, d_output]
 
-            z_list_dict[dst_type].append(z_list)
+            z_list_dict[dst_type].append(z)
 
         z_dict = {}
-        for node_type, z_list in z_list_dict.items():
-            z_all = torch.stack(tuple(z_list), dim=0)
+        for node_type, z in z_list_dict.items():
+            z_all = torch.stack(tuple(z), dim=0)
 
             beta = self.semantic_attention(z_all)
 
@@ -111,6 +110,5 @@ class HAN(MessagePassing):
 
         return (alpha.view(-1, self.num_heads, 1) * x_j_heads).reshape(-1, self.d_output)
 
-    def __call__(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[
-        str, Tensor]:
+    def __call__(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[str, Tensor]:
         return super().__call__(x_dict, v_dict, edge_index_dict)

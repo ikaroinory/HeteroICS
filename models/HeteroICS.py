@@ -109,8 +109,6 @@ class HeteroICS(nn.Module):
             edge_index_dict[edge_type] = edges
 
         z_dict = self.han(x_dict, v_dict, edge_index_dict)
-        for node_type in self.node_types:
-            z_dict[node_type] = z_dict[node_type] + v_dict[node_type]
 
         p_flatten = torch.zeros([batch_size * self.num_nodes, self.d_hidden], device=self.device)
         for node_type, indices in node_indices_flatten.items():
