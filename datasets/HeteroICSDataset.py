@@ -2,8 +2,8 @@ from typing import Literal
 
 import numpy as np
 import torch
-from functorch.dim import Tensor
 from numpy import ndarray
+from torch import Tensor
 from torch.utils.data import Dataset
 
 
