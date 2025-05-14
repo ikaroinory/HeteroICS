@@ -10,5 +10,7 @@ pip install optuna optuna-dashboard
 # New
 pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu126
 pip install torch_geometric
-pip pandas
-pip scikit-learn
+pip install pandas
+pip install scikit-learn
+pip install loguru
+pip install optuna optuna-dashboard
