@@ -97,7 +97,7 @@ class HeteroICS(nn.Module):
         for edge_type in self.edge_types:
             src_type, _, dst_type = edge_type
 
-            k = self.k_dict[edge_type] + 1
+            k = self.k_dict[edge_type]
 
             edges = self.__get_edges(v[self.node_indices[src_type]], v[self.node_indices[dst_type]], k)
 
