@@ -62,7 +62,7 @@ class Arguments:
 
         parser.add_argument('-sw', '--slide_window', type=int, default=9)
         parser.add_argument('-ss', '--slide_stride', type=int, default=1)
-        parser.add_argument('-k', '--k', type=int, default='*')
+        parser.add_argument('-k', '--k', type=int, nargs='*')
 
         parser.add_argument('--d_hidden', type=int, default=64)
         parser.add_argument('--d_output_hidden', type=int, default=132)
@@ -70,8 +70,8 @@ class Arguments:
         parser.add_argument('--num_heads', type=int, default=4)
         parser.add_argument('--num_output_layer', type=int, default=4)
 
-        parser.add_argument('--lr', type=float, default=0.002)
-        parser.add_argument('--dropout', type=float, default=0.15)
+        parser.add_argument('--lr', type=float, default=0.002136468264540217)
+        parser.add_argument('--dropout', type=float, default=0.14788327107085736)
 
         parser.add_argument('--early_stop', type=int, default=20)
 

@@ -26,7 +26,7 @@ class HeteroICS(nn.Module):
         self.d_hidden = d_hidden
         self.num_nodes = sum(len(v) for v in node_indices.values())
         self.num_nodes_dict = {node_type: len(indices) for node_type, indices in node_indices.items()}
-        self.node_indices = {node_type: torch.tensor(indices, device=device) for node_type, indices in node_indices.items()}
+        self.node_indices = {node_type: torch.tensor(indices, device=device, dtype=torch.int32) for node_type, indices in node_indices.items()}
         self.node_types = list(node_indices.keys())
         self.edge_types = edge_types
         self.k_dict = k_dict
