@@ -24,10 +24,10 @@ class Arguments:
         self.slide_window: int = args.slide_window
         self.slide_stride: int = args.slide_stride
         self.k_dict: dict[tuple[str, str, str], int] = {
-            ('sensor', 'ss', 'sensor'): 5,
-            ('sensor', 'sa', 'actuator'): 5,
-            ('actuator', 'as', 'sensor'): 7,
-            ('actuator', 'aa', 'actuator'): 8
+            ('sensor', 'ss', 'sensor'): args.k[0],
+            ('sensor', 'sa', 'actuator'): args.k[1],
+            ('actuator', 'as', 'sensor'): args.k[2],
+            ('actuator', 'aa', 'actuator'): args.k[3]
         }
 
         self.d_hidden: int = args.d_hidden
@@ -57,21 +57,21 @@ class Arguments:
         parser.add_argument('--dtype', choices=['float', 'double'], default='float')
         parser.add_argument('--device', type=str, choices=['cuda', 'cpu'], default='cuda')
 
-        parser.add_argument('-b', '--batch_size', type=int, default=32)
+        parser.add_argument('-b', '--batch_size', type=int, default=64)
         parser.add_argument('-e', '--epochs', type=int, default=500)
 
         parser.add_argument('-sw', '--slide_window', type=int, default=9)
         parser.add_argument('-ss', '--slide_stride', type=int, default=1)
-        parser.add_argument('-k', '--k', type=int, default=5)
+        parser.add_argument('-k', '--k', type=int, default='*')
 
         parser.add_argument('--d_hidden', type=int, default=64)
-        parser.add_argument('--d_output_hidden', type=int, default=128)
+        parser.add_argument('--d_output_hidden', type=int, default=132)
 
-        parser.add_argument('--num_heads', type=int, default=1)
-        parser.add_argument('--num_output_layer', type=int, default=1)
+        parser.add_argument('--num_heads', type=int, default=4)
+        parser.add_argument('--num_output_layer', type=int, default=4)
 
-        parser.add_argument('--lr', type=float, default=0.006907612122347528)
-        parser.add_argument('--dropout', type=float, default=0.19928909244001292)
+        parser.add_argument('--lr', type=float, default=0.002)
+        parser.add_argument('--dropout', type=float, default=0.15)
 
         parser.add_argument('--early_stop', type=int, default=20)
 
