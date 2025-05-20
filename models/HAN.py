@@ -35,7 +35,6 @@ class HAN(MessagePassing):
         self.process_layer = nn.ModuleDict(
             {
                 node_type: nn.Sequential(
-                    nn.BatchNorm1d(d_output),
                     nn.ReLU()
                 )
                 for node_type in self.node_types
