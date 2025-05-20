@@ -3,7 +3,6 @@ from collections import defaultdict
 import torch
 from torch import Tensor, nn
 from torch_geometric.nn import MessagePassing
-from torch_geometric.nn.inits import glorot
 from torch_geometric.utils import softmax
 
 
@@ -25,19 +24,11 @@ class HAN(MessagePassing):
         self.d_output = d_output
         self.num_heads = num_heads
 
-        self.W_x_phi = nn.ModuleDict({node_type: nn.Linear(x_input, d_output) for node_type in self.node_types})
+        self.W_x_phi = nn.ModuleDict({node_type: nn.Linear(x_input, d_output, bias=False) for node_type in self.node_types})
         self.w_pi = nn.ParameterDict(
             {
                 '->'.join(edge_type): nn.Parameter(torch.zeros([1, self.num_heads, (self.d_output // self.num_heads) * 4]))
                 for edge_type in edge_types
-            }
-        )
-        self.process_layer = nn.ModuleDict(
-            {
-                node_type: nn.Sequential(
-                    nn.ReLU()
-                )
-                for node_type in self.node_types
             }
         )
         self.semantic_attention = nn.Sequential(
@@ -49,13 +40,6 @@ class HAN(MessagePassing):
 
         self.leaky_relu = nn.LeakyReLU()
         self.dropout = nn.Dropout(dropout)
-
-        self.reset_parameters()
-
-    def reset_parameters(self):
-        super().reset_parameters()
-
-        glorot(self.w_pi)
 
     def forward(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[str, Tensor]:
         x_prime_dict = {}
@@ -85,9 +69,9 @@ class HAN(MessagePassing):
 
             beta = self.semantic_attention(z_all)
 
-            output = torch.sum(z_all * beta.expand(-1, -1, self.d_output), dim=0)
+            output = torch.sum(beta.expand(-1, -1, self.d_output) * z_all, dim=0)
 
-            z_dict[node_type] = self.process_layer[node_type](output)
+            z_dict[node_type] = output
 
         return z_dict
 

@@ -1,3 +1,5 @@
+import math
+
 import torch
 from torch import Tensor, nn
 
@@ -32,11 +34,14 @@ class HeteroICS(nn.Module):
         self.k_dict = k_dict
 
         self.embedding_layer = nn.Embedding(num_embeddings=self.num_nodes, embedding_dim=d_hidden)
+        nn.init.kaiming_uniform_(self.embedding_layer.weight, a=math.sqrt(5))
         self.han = HAN(sequence_len, d_hidden, d_hidden, num_heads, dropout, node_indices=node_indices, edge_types=edge_types)
-        self.output_layer = nn.Sequential(
+        self.process_layer = nn.Sequential(
+            nn.BatchNorm1d(d_hidden),
             nn.ReLU(),
-            OutputLayer(d_input=d_hidden, d_hidden=d_output_hidden, num_layers=num_output_layer)
+            nn.Dropout(dropout)
         )
+        self.output_layer = OutputLayer(d_input=d_hidden, d_hidden=d_output_hidden, num_layers=num_output_layer)
 
         self.dtype = dtype
         self.device = device
@@ -111,8 +116,10 @@ class HeteroICS(nn.Module):
 
         p_flatten = torch.zeros([batch_size * self.num_nodes, self.d_hidden], device=self.device)
         for node_type, indices in node_indices_flatten.items():
-            p_flatten[indices] = z_dict[node_type] * v_flatten[indices]
+            # p_flatten[indices] = z_dict[node_type] * v_flatten[indices]
+            p_flatten[indices] = z_dict[node_type] + v_flatten[indices]
 
+        p_flatten = self.process_layer(p_flatten)
         output = self.output_layer(p_flatten).reshape(batch_size, -1)
 
         return output

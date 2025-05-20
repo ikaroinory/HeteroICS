@@ -65,12 +65,12 @@ class Arguments:
         parser.add_argument('-k', '--k', type=int, nargs='*')
 
         parser.add_argument('--d_hidden', type=int, default=64)
-        parser.add_argument('--d_output_hidden', type=int, default=132)
+        parser.add_argument('--d_output_hidden', type=int, default=128)
 
         parser.add_argument('--num_heads', type=int, default=4)
         parser.add_argument('--num_output_layer', type=int, default=4)
 
-        parser.add_argument('--lr', type=float, default=0.002)
+        parser.add_argument('--lr', type=float, default=0.001)
         parser.add_argument('--dropout', type=float, default=0.15)
 
         parser.add_argument('--early_stop', type=int, default=10)
