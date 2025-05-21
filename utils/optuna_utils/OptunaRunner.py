@@ -214,8 +214,10 @@ class OptunaRunner:
 
         return best_train_loss_with_best_epoch, best_valid_loss
 
-    def __evaluate(self) -> tuple[float, float, float, float]:
+    def __evaluate(self, model_name: Path) -> tuple[float, float, float, float]:
         Logger.info('Evaluating...')
+
+        self.__model.load_state_dict(torch.load(f'{model_name}', weights_only=True))
 
         _, valid_result = self.__valid_epoch(self.__valid_dataloader)
         test_loss, test_result = self.__valid_epoch(self.__test_dataloader)
@@ -233,5 +235,5 @@ class OptunaRunner:
 
     def run(self) -> tuple[float, float, float, float, float, float]:
         best_train_loss_with_best_epoch, best_valid_loss = self.__train()
-        f1, precision, recall, auc = self.__evaluate()
+        f1, precision, recall, auc = self.__evaluate(self.__model_path)
         return best_train_loss_with_best_epoch, best_valid_loss, f1, precision, recall, auc
