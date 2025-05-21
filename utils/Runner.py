@@ -66,7 +66,7 @@ class Runner:
         random.seed(self.args.seed)
         np.random.seed(self.args.seed)
         torch.manual_seed(self.args.seed)
-        torch.cuda.manual_seed(self.args.seed)
+        torch.cuda.manual_seed_all(self.args.seed)
 
     def __get_train_and_valid_dataloader(self, train_dataset: HeteroICSDataset, valid_size: float) -> tuple[DataLoader, DataLoader]:
         dataset_size = int(len(train_dataset))
@@ -110,7 +110,7 @@ class Runner:
             dtype=self.args.dtype
         )
 
-        train_dataloader, valid_dataloader = self.__get_train_and_valid_dataloader(train_dataset, 0.2)
+        train_dataloader, valid_dataloader = self.__get_train_and_valid_dataloader(train_dataset, 0.1)
 
         self.__set_seed()
         test_dataloader = DataLoader(test_dataset, batch_size=self.args.batch_size, shuffle=False)
@@ -145,7 +145,7 @@ class Runner:
         actual_list = []
         label_list = []
 
-        total_valid_loss = 0
+        valid_loss_list = []
         for x, y, label in tqdm(dataloader):
             x = x.to(self.args.device)
             y = y.to(self.args.device)
@@ -156,7 +156,7 @@ class Runner:
 
                 loss = self.loss(output, y)
 
-                total_valid_loss += loss.item()
+                valid_loss_list.append(loss.item())
 
                 predicted_list.append(output)
                 actual_list.append(y)
@@ -166,7 +166,7 @@ class Runner:
         actual_tensor = torch.cat(actual_list, dim=0)
         label_tensor = torch.cat(label_list, dim=0)
 
-        return total_valid_loss / len(self.valid_dataloader), (predicted_tensor, actual_tensor, label_tensor)
+        return sum(valid_loss_list) / len(valid_loss_list), (predicted_tensor, actual_tensor, label_tensor)
 
     def __train(self) -> None:
         Logger.info('Training...')
@@ -219,7 +219,7 @@ class Runner:
 
         Logger.info(f' - Test loss: {test_loss:.8f}')
 
-        f1, precision, recall, auc = get_metrics(test_result, valid_result if self.args.report == 'label' else None, self.args.slide_window)
+        f1, precision, recall, auc = get_metrics(test_result, valid_result if self.args.report == 'label' else None)
 
         Logger.info(f' - F1 score: {f1:.4f}')
         Logger.info(f' - Precision: {precision:.4f}')

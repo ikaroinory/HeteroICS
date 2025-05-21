@@ -208,7 +208,7 @@ class OptunaRunner:
 
         Logger.info(f' - Test loss: {test_loss:.8f}')
 
-        f1, precision, recall, auc = get_metrics(test_result, valid_result if self.__args.report == 'label' else None, self.__args.slide_window)
+        f1, precision, recall, auc = get_metrics(test_result, valid_result if self.__args.report == 'label' else None)
 
         Logger.info(f' - F1 score: {f1:.4f}')
         Logger.info(f' - Precision: {precision:.4f}')

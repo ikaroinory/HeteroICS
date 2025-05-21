@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from numpy import ndarray
+from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler
 
 from utils import Logger
@@ -26,7 +27,13 @@ def __downsample(data_np: ndarray, labels_np: ndarray, sample_len: int) -> tuple
     return downsampled_data_np, downsampled_labels_np
 
 
-def preprocess_swat(data_path: str, processed_data_path: str, sample_len: int = 10):
+def __normalize(train_data_df: DataFrame, test_data_df: DataFrame = None) -> ndarray:
+    normalizer = MinMaxScaler(feature_range=(0, 1)).fit(train_data_df)
+
+    return normalizer.transform(train_data_df) if test_data_df is None else normalizer.transform(test_data_df)
+
+
+def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10, train_df: DataFrame = None) -> DataFrame:
     _processed_data_path = Path(processed_data_path)
     _processed_data_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -70,7 +77,12 @@ def preprocess_swat(data_path: str, processed_data_path: str, sample_len: int = 
     Logger.info(f'Scaling data...')
     data_labels = data_df['Normal/Attack']
     data_df.drop(columns=['Normal/Attack'], inplace=True)
-    data_np = MinMaxScaler(feature_range=(0, 1)).fit(data_df).transform(data_df)
+    original_data_df = data_df.copy()
+    if train_df is None:
+        data_np = __normalize(data_df)
+    else:
+        data_np = __normalize(train_df, data_df)
+
     Logger.info(f'Scaled.')
 
     # Down-sample
@@ -101,3 +113,13 @@ def preprocess_swat(data_path: str, processed_data_path: str, sample_len: int = 
         ]
         file.write(json.dumps(edge_types, indent=4))
     Logger.info('Saved edge types.')
+
+    return original_data_df
+
+
+def preprocess_swat(original_data_path: tuple[str, str], processed_data_path: tuple[str, str], sample_len: int = 10) -> None:
+    original_train_data_path, original_test_data_path = original_data_path
+    processed_train_data_path, processed_test_data_path = processed_data_path
+
+    original_train_data_df = __preprocess(original_train_data_path, processed_train_data_path, sample_len)
+    __preprocess(original_test_data_path, processed_test_data_path, sample_len, original_train_data_df)
