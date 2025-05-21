@@ -47,7 +47,7 @@ def get_f1_with_label(error_score: Tensor, actual_label: Tensor) -> tuple[float,
 def get_metrics(
     test_result: tuple[Tensor, Tensor, Tensor],
     valid_result: tuple[Tensor, Tensor, Tensor] = None,
-    smooth_window: int = 5
+    smooth_window: int = 4
 ) -> tuple[float, float, float, float]:
     test_error_score = get_total_error_score(test_result, smooth_window)
 

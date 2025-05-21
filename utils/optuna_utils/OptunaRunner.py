@@ -56,7 +56,6 @@ class OptunaRunner:
             num_heads=self.__args.num_heads,
             num_output_layer=self.__args.num_output_layer,
             k_dict=self.__args.k_dict,
-            dropout=self.__args.dropout,
             node_indices=node_indices,
             edge_types=edge_types,
             dtype=self.__args.dtype,

@@ -29,14 +29,13 @@ class OptunaArguments:
             ('actuator', 'aa', 'actuator'): trial.suggest_int('k_aa', 1, 10)
         }
 
-        self.d_hidden: int = trial.suggest_categorical('d_hidden', [64, 128, 256, 512])  # best: 256
+        self.d_hidden: int = trial.suggest_categorical('d_hidden', [64, 128, 256])  # best: 256
         self.d_output_hidden: int = trial.suggest_int('d_output_hidden', 128, 512, log=True)  # best: 128
 
         self.num_heads: int = trial.suggest_categorical('num_heads', [1, 2, 4, 8])  # best: 1
         self.num_output_layer: int = trial.suggest_int('num_output_layer', 1, 5)  # best: 2
 
         self.lr: float = trial.suggest_float('lr', 1e-4, 1e-2, log=True)  # best: 0.001
-        self.dropout: float = trial.suggest_float('dropout', 0, 0.2)  # best: 0
 
         self.early_stop: int = 10
 

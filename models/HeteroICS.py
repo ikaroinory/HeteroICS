@@ -16,7 +16,6 @@ class HeteroICS(nn.Module):
         num_heads: int,
         num_output_layer: int,
         k_dict: dict[tuple[str, str, str], int],
-        dropout: float,
         *,
         node_indices: dict[str, list[int]],
         edge_types: list[tuple[str, str, str]],
@@ -35,11 +34,10 @@ class HeteroICS(nn.Module):
 
         self.embedding_layer = nn.Embedding(num_embeddings=self.num_nodes, embedding_dim=d_hidden)
         nn.init.kaiming_uniform_(self.embedding_layer.weight, a=math.sqrt(5))
-        self.han = HAN(sequence_len, d_hidden, d_hidden, num_heads, dropout, node_indices=node_indices, edge_types=edge_types)
+        self.han = HAN(sequence_len, d_hidden, num_heads, node_indices=node_indices, edge_types=edge_types)
         self.process_layer = nn.Sequential(
             nn.BatchNorm1d(d_hidden),
-            nn.ReLU(),
-            nn.Dropout(dropout)
+            nn.ReLU()
         )
         self.output_layer = OutputLayer(d_input=d_hidden, d_hidden=d_output_hidden, num_layers=num_output_layer)
 

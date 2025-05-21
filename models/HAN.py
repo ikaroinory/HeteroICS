@@ -10,10 +10,8 @@ class HAN(MessagePassing):
     def __init__(
         self,
         x_input: int,
-        v_input: int,
         d_output: int,
         num_heads: int,
-        dropout: float,
         *,
         node_indices: dict[str, list[int]],
         edge_types: list[tuple[str, str, str]]
@@ -39,7 +37,6 @@ class HAN(MessagePassing):
         )
 
         self.leaky_relu = nn.LeakyReLU()
-        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[str, Tensor]:
         x_prime_dict = {}
@@ -89,7 +86,6 @@ class HAN(MessagePassing):
 
         pi = self.leaky_relu(torch.einsum('nhd,nhd->nh', g, self.w_pi[edge_type_str]))
         alpha = softmax(pi, index=edge_index_i)
-        alpha = self.dropout(alpha)
 
         return (alpha.view(-1, self.num_heads, 1) * x_j_heads).reshape(-1, self.d_output)
 

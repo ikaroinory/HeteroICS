@@ -53,7 +53,6 @@ class Runner:
             num_heads=self.args.num_heads,
             num_output_layer=self.args.num_output_layer,
             k_dict=self.args.k_dict,
-            dropout=self.args.dropout,
             node_indices=node_indices,
             edge_types=edge_types,
             dtype=self.args.dtype,
