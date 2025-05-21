@@ -1,5 +1,8 @@
+import copy
 import json
 import random
+from datetime import datetime
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -22,7 +25,12 @@ class OptunaRunner:
     def __init__(self, trail: Trial):
         self.__args = OptunaArguments(trail)
 
-        Logger.init()
+        self.start_time = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+        self.__log_path = Path(f'logs/{self.__args.dataset}/{self.start_time}.log')
+        self.__model_path = Path(f'saves/{self.__args.dataset}/{self.start_time}.pth')
+
+        Logger.init(self.__log_path)
 
         Logger.info('Setting seed...')
         self.__set_seed()
@@ -169,6 +177,7 @@ class OptunaRunner:
         best_epoch = -1
         best_train_loss_with_best_epoch = float('inf')
         best_valid_loss = float('inf')
+        best_model_weights = copy.deepcopy(self.__model.state_dict())
         no_improve_count = 0
 
         for epoch in tqdm(range(self.__args.epochs)):
@@ -185,6 +194,7 @@ class OptunaRunner:
                 best_train_loss_with_best_epoch = train_loss
                 best_valid_loss = valid_loss
 
+                best_model_weights = copy.deepcopy(self.__model.state_dict())
                 no_improve_count = 0
             else:
                 no_improve_count += 1
@@ -194,9 +204,13 @@ class OptunaRunner:
             if no_improve_count >= self.__args.early_stop:
                 break
 
+        self.__model_path.parent.mkdir(parents=True, exist_ok=True)
+        torch.save(best_model_weights, self.__model_path)
+
         Logger.info(f'Best epoch: {best_epoch}')
         Logger.info(f' - Train loss: {best_train_loss_with_best_epoch:.8f}')
         Logger.info(f' - Valid loss: {best_valid_loss:.8f}')
+        Logger.info(f'Model save to {self.__model_path}')
 
         return best_train_loss_with_best_epoch, best_valid_loss
 
