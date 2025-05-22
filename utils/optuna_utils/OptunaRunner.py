@@ -10,7 +10,7 @@ import torch
 from optuna import Trial
 from torch import Tensor
 from torch.nn import MSELoss
-from torch.optim import Adam
+from torch.optim import AdamW
 from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
 
@@ -61,7 +61,7 @@ class OptunaRunner:
             dtype=self.__args.dtype,
             device=self.__args.device
         )
-        self.__optimizer = Adam(self.__model.parameters(), lr=self.__args.lr)
+        self.__optimizer = AdamW(self.__model.parameters(), lr=self.__args.lr, weight_decay=self.__args.decay)
         self.__loss = MSELoss()
 
     def __set_seed(self) -> None:

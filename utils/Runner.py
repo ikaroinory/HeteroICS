@@ -9,7 +9,7 @@ import pandas as pd
 import torch
 from torch import Tensor
 from torch.nn import MSELoss
-from torch.optim import Adam
+from torch.optim import AdamW
 from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
 
@@ -58,7 +58,7 @@ class Runner:
             dtype=self.args.dtype,
             device=self.args.device
         )
-        self.optimizer = Adam(self.model.parameters(), lr=self.args.lr)
+        self.optimizer = AdamW(self.model.parameters(), lr=self.args.lr, weight_decay=self.args.decay)
         self.loss = MSELoss()
 
     def __set_seed(self) -> None:
