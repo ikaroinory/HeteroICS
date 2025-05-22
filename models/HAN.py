@@ -1,8 +1,10 @@
 from collections import defaultdict
 
 import torch
+import torch.nn.functional as F
 from torch import Tensor, nn
 from torch_geometric.nn import MessagePassing
+from torch_geometric.nn.inits import glorot
 from torch_geometric.utils import softmax
 
 
@@ -25,7 +27,7 @@ class HAN(MessagePassing):
         self.W_x_phi = nn.ModuleDict({node_type: nn.Linear(x_input, d_output, bias=False) for node_type in self.node_types})
         self.w_pi = nn.ParameterDict(
             {
-                '->'.join(edge_type): nn.Parameter(torch.zeros([1, self.num_heads, (self.d_output // self.num_heads) * 4]))
+                '->'.join(edge_type): nn.Parameter(torch.zeros([1, num_heads, (d_output // num_heads) * 4]))
                 for edge_type in edge_types
             }
         )
@@ -35,6 +37,8 @@ class HAN(MessagePassing):
             nn.Linear(d_output, 1, bias=False),
             nn.Softmax(dim=0)
         )
+        self.W_beta = nn.Parameter(torch.zeros([d_output, d_output]))
+        glorot(self.W_beta)
 
         self.leaky_relu = nn.LeakyReLU()
 
@@ -62,13 +66,19 @@ class HAN(MessagePassing):
 
         z_dict = {}
         for node_type, z_list in z_list_dict.items():
+            # z_all = torch.stack(tuple(z_list), dim=0)
+            #
+            # beta = self.semantic_attention(z_all)
+            #
+            # output = torch.sum(beta.expand(-1, -1, self.d_output) * z_all, dim=0)
+            #
+            # z_dict[node_type] = output / len(z_list)
+
             z_all = torch.stack(tuple(z_list), dim=0)
-
-            beta = self.semantic_attention(z_all)
-
+            beta = (z_all @ self.W_beta @ v_dict[node_type].T).diagonal(dim1=1, dim2=2).unsqueeze(-1)
+            beta = F.softmax(beta, dim=0)
             output = torch.sum(beta.expand(-1, -1, self.d_output) * z_all, dim=0)
-
-            z_dict[node_type] = output
+            z_dict[node_type] = output / len(z_list)
 
         return z_dict
 
