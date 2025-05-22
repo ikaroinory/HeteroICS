@@ -1,7 +1,6 @@
 from collections import defaultdict
 
 import torch
-import torch.nn.functional as F
 from torch import Tensor, nn
 from torch_geometric.nn import MessagePassing
 from torch_geometric.nn.inits import glorot
@@ -31,12 +30,12 @@ class HAN(MessagePassing):
                 for edge_type in edge_types
             }
         )
-        self.semantic_attention = nn.Sequential(
-            nn.Linear(d_output, d_output),
-            nn.Tanh(),
-            nn.Linear(d_output, 1, bias=False),
-            nn.Softmax(dim=0)
-        )
+        # self.semantic_attention = nn.Sequential(
+        #     nn.Linear(d_output, d_output),
+        #     nn.Tanh(),
+        #     nn.Linear(d_output, 1, bias=False)
+        # )
+        self.softmax = nn.Softmax(dim=0)
         self.W_beta = nn.Parameter(torch.zeros([d_output, d_output]))
         glorot(self.W_beta)
 
@@ -68,15 +67,16 @@ class HAN(MessagePassing):
         for node_type, z_list in z_list_dict.items():
             # z_all = torch.stack(tuple(z_list), dim=0)
             #
-            # beta = self.semantic_attention(z_all)
+            # beta = self.semantic_attention(z_all).mean(dim=1).squeeze()
+            # beta = self.softmax(beta)
             #
-            # output = torch.sum(beta.expand(-1, -1, self.d_output) * z_all, dim=0)
+            # output = torch.sum(beta.view(-1, 1, 1) * z_all, dim=0)
             #
-            # z_dict[node_type] = output / len(z_list)
+            # z_dict[node_type] = output
 
             z_all = torch.stack(tuple(z_list), dim=0)
             beta = (z_all @ self.W_beta @ v_dict[node_type].T).diagonal(dim1=1, dim2=2).unsqueeze(-1)
-            beta = F.softmax(beta, dim=0)
+            beta = self.softmax(beta)
             output = torch.sum(beta.expand(-1, -1, self.d_output) * z_all, dim=0)
             z_dict[node_type] = output / len(z_list)
 
