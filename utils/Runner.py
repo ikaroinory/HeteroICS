@@ -135,7 +135,7 @@ class Runner:
 
             total_train_loss += loss.item()
 
-        return total_train_loss / len(self.train_dataloader)
+        return total_train_loss
 
     def __valid_epoch(self, dataloader: DataLoader) -> tuple[float, tuple[Tensor, Tensor, Tensor]]:
         self.model.eval()
@@ -165,7 +165,7 @@ class Runner:
         actual_tensor = torch.cat(actual_list, dim=0)
         label_tensor = torch.cat(label_list, dim=0)
 
-        return sum(valid_loss_list) / len(valid_loss_list), (predicted_tensor, actual_tensor, label_tensor)
+        return sum(valid_loss_list), (predicted_tensor, actual_tensor, label_tensor)
 
     def __train(self) -> None:
         Logger.info('Training...')

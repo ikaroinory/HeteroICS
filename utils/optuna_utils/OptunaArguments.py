@@ -13,7 +13,7 @@ class OptunaArguments:
         self.report: Literal['label', 'no_label'] = 'label'
 
         self.dataset: str = 'swat'
-        self.dtype = torch.float32
+        self.dtype = torch.float64
         self.device = 'cuda'
 
         self.batch_size: int = trial.suggest_categorical('batch_size', [32, 64, 128])  # best: 256

@@ -138,7 +138,7 @@ class OptunaRunner:
 
             total_train_loss += loss.item()
 
-        return total_train_loss / len(self.__train_dataloader)
+        return total_train_loss
 
     def __valid_epoch(self, dataloader: DataLoader) -> tuple[float, tuple[Tensor, Tensor, Tensor]]:
         self.__model.eval()
@@ -168,13 +168,14 @@ class OptunaRunner:
         actual_tensor = torch.cat(actual_list, dim=0)
         label_tensor = torch.cat(label_list, dim=0)
 
-        return total_valid_loss / len(self.__valid_dataloader), (predicted_tensor, actual_tensor, label_tensor)
+        return total_valid_loss, (predicted_tensor, actual_tensor, label_tensor)
 
     def __train(self) -> tuple[float, float]:
         Logger.info('Training...')
 
         best_epoch = -1
         best_train_loss_with_best_epoch = float('inf')
+        best_train_loss = float('inf')
         best_valid_loss = float('inf')
         best_model_weights = copy.deepcopy(self.__model.state_dict())
         no_improve_count = 0
@@ -187,11 +188,21 @@ class OptunaRunner:
             Logger.info(f' - Train loss: {train_loss:.8f}')
             Logger.info(f' - Valid loss: {valid_loss:.8f}')
 
-            if valid_loss < best_valid_loss:
+            # if valid_loss < best_valid_loss:
+            #     best_epoch = epoch + 1
+            #
+            #     best_train_loss_with_best_epoch = train_loss
+            #     best_valid_loss = valid_loss
+            #
+            #     best_model_weights = copy.deepcopy(self.__model.state_dict())
+            #     no_improve_count = 0
+            # else:
+            #     no_improve_count += 1
+            if train_loss < best_train_loss:
                 best_epoch = epoch + 1
 
                 best_train_loss_with_best_epoch = train_loss
-                best_valid_loss = valid_loss
+                best_train_loss = train_loss
 
                 best_model_weights = copy.deepcopy(self.__model.state_dict())
                 no_improve_count = 0
