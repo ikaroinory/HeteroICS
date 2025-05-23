@@ -27,7 +27,8 @@ class HeteroICS(nn.Module):
         self.d_hidden = d_hidden
         self.num_nodes = sum(len(v) for v in node_indices.values())
         self.num_nodes_dict = {node_type: len(indices) for node_type, indices in node_indices.items()}
-        self.node_indices = {node_type: torch.tensor(indices, device=device, dtype=torch.int32) for node_type, indices in node_indices.items()}
+        self.node_indices = {node_type: torch.tensor(indices, device=device, dtype=torch.int32) for node_type, indices in
+                             node_indices.items()}
         self.node_types = list(node_indices.keys())
         self.edge_types = edge_types
         self.k_dict = k_dict
@@ -112,7 +113,7 @@ class HeteroICS(nn.Module):
 
         z_dict = self.han(x_dict, v_dict, edge_index_dict)
 
-        p_flatten = torch.zeros([batch_size * self.num_nodes, self.d_hidden], device=self.device)
+        p_flatten = torch.zeros([batch_size * self.num_nodes, self.d_hidden], dtype=self.dtype, device=self.device)
         for node_type, indices in node_indices_flatten.items():
             # p_flatten[indices] = z_dict[node_type] * v_flatten[indices]
             p_flatten[indices] = z_dict[node_type] + v_flatten[indices]
