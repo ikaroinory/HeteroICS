@@ -136,9 +136,9 @@ class OptunaRunner:
             loss.backward()
             self.__optimizer.step()
 
-            total_train_loss += loss.item()
+            total_train_loss += loss.item() * x.shape[0]
 
-        return total_train_loss
+        return total_train_loss / len(self.train_dataloader.dataset)
 
     def __valid_epoch(self, dataloader: DataLoader) -> tuple[float, tuple[Tensor, Tensor, Tensor]]:
         self.__model.eval()
@@ -158,7 +158,7 @@ class OptunaRunner:
 
                 loss = self.__loss(output, y)
 
-                total_valid_loss += loss.item()
+                total_valid_loss += loss.item() * x.shape[0]
 
                 predicted_list.append(output)
                 actual_list.append(y)
@@ -168,7 +168,7 @@ class OptunaRunner:
         actual_tensor = torch.cat(actual_list, dim=0)
         label_tensor = torch.cat(label_list, dim=0)
 
-        return total_valid_loss, (predicted_tensor, actual_tensor, label_tensor)
+        return total_valid_loss / len(dataloader.dataset), (predicted_tensor, actual_tensor, label_tensor)
 
     def __train(self) -> tuple[float, float]:
         Logger.info('Training...')

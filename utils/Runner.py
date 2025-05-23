@@ -133,9 +133,9 @@ class Runner:
             loss.backward()
             self.optimizer.step()
 
-            total_train_loss += loss.item()
+            total_train_loss += loss.item() * x.shape[0]
 
-        return total_train_loss
+        return total_train_loss / len(self.train_dataloader.dataset)
 
     def __valid_epoch(self, dataloader: DataLoader) -> tuple[float, tuple[Tensor, Tensor, Tensor]]:
         self.model.eval()
@@ -155,7 +155,7 @@ class Runner:
 
                 loss = self.loss(output, y)
 
-                valid_loss_list.append(loss.item())
+                valid_loss_list.append(loss.item() * x.shape[0])
 
                 predicted_list.append(output)
                 actual_list.append(y)
@@ -165,7 +165,7 @@ class Runner:
         actual_tensor = torch.cat(actual_list, dim=0)
         label_tensor = torch.cat(label_list, dim=0)
 
-        return sum(valid_loss_list), (predicted_tensor, actual_tensor, label_tensor)
+        return sum(valid_loss_list) / len(dataloader.dataset), (predicted_tensor, actual_tensor, label_tensor)
 
     def __train(self) -> None:
         Logger.info('Training...')
