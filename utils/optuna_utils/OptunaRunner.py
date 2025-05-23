@@ -138,7 +138,7 @@ class OptunaRunner:
 
             total_train_loss += loss.item() * x.shape[0]
 
-        return total_train_loss / len(self.train_dataloader.dataset)
+        return total_train_loss / len(self.__train_dataloader.dataset)
 
     def __valid_epoch(self, dataloader: DataLoader) -> tuple[float, tuple[Tensor, Tensor, Tensor]]:
         self.__model.eval()
