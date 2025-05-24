@@ -28,7 +28,8 @@ def __downsample(data_np: ndarray, labels_np: ndarray, sample_len: int) -> tuple
 
 
 def __normalize(train_data_df: DataFrame, test_data_df: DataFrame = None) -> ndarray:
-    normalizer = MinMaxScaler(feature_range=(0, 1)).fit(train_data_df)
+    normalizer = MinMaxScaler()
+    normalizer.fit(train_data_df)
 
     return normalizer.transform(train_data_df) if test_data_df is None else normalizer.transform(test_data_df)
 

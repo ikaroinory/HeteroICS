@@ -9,7 +9,7 @@ import pandas as pd
 import torch
 from optuna import Trial
 from torch import Tensor
-from torch.nn import L1Loss
+from torch.nn import MSELoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
@@ -62,7 +62,7 @@ class Runner:
             device=self.__args.device
         )
         self.__optimizer = Adam(self.__model.parameters(), lr=self.__args.lr)
-        self.__loss = L1Loss()
+        self.__loss = MSELoss()
 
     def __set_seed(self) -> None:
         random.seed(self.__args.seed)
