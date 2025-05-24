@@ -75,7 +75,7 @@ class HAN(MessagePassing):
             # z_dict[node_type] = output
 
             z_all = torch.stack(tuple(z_list), dim=0)
-            beta = (z_all @ self.W_beta @ v_dict[node_type].T).diagonal(dim1=1, dim2=2).unsqueeze(-1)
+            beta = (z_all @ self.W_beta @ x_prime_dict[node_type].T).diagonal(dim1=1, dim2=2).unsqueeze(-1)
             beta = self.softmax(beta)
             output = torch.sum(beta.expand(-1, -1, self.d_output) * z_all, dim=0)
             z_dict[node_type] = output
