@@ -27,8 +27,7 @@ class HeteroICS(nn.Module):
         self.d_hidden = d_hidden
         self.num_nodes = sum(len(v) for v in node_indices.values())
         self.num_nodes_dict = {node_type: len(indices) for node_type, indices in node_indices.items()}
-        self.node_indices = {node_type: torch.tensor(indices, device=device, dtype=torch.int32) for node_type, indices in
-                             node_indices.items()}
+        self.node_indices = {node_type: torch.tensor(indices, device=device, dtype=torch.int32) for node_type, indices in node_indices.items()}
         self.node_types = list(node_indices.keys())
         self.edge_types = edge_types
         self.k_dict = k_dict
@@ -37,7 +36,7 @@ class HeteroICS(nn.Module):
         nn.init.kaiming_uniform_(self.embedding_layer.weight, a=math.sqrt(5))
         self.han = HAN(sequence_len, d_hidden, num_heads, node_indices=node_indices, edge_types=edge_types)
         self.process_layer = nn.Sequential(
-            # nn.BatchNorm1d(d_hidden),
+            nn.BatchNorm1d(d_hidden),
             nn.ReLU()
         )
         self.output_layer = OutputLayer(d_input=d_hidden, d_hidden=d_output_hidden, num_layers=num_output_layer)
