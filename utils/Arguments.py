@@ -15,7 +15,7 @@ class Arguments:
         self.report: Literal['label', 'no_label'] = args.report
 
         self.dataset: str = args.dataset
-        self.dtype = torch.float32 if args.dtype == 'float32' or args.dtype == 'float' else torch.float64
+        self.dtype = torch.float32 if args.dtype == 'float' else torch.float64
         self.device = args.device
 
         self.batch_size: int = args.batch_size
@@ -53,7 +53,7 @@ class Arguments:
         parser.add_argument('--report', type=str, choices=['label', 'no_label'], default='label')
 
         parser.add_argument('-ds', '--dataset', type=str, default='swat')
-        parser.add_argument('--dtype', choices=['float', 'double'], default='double')
+        parser.add_argument('--dtype', choices=['float', 'double'], default='float')
         parser.add_argument('--device', type=str, choices=['cuda', 'cpu'], default='cuda')
 
         parser.add_argument('-b', '--batch_size', type=int, default=64)
@@ -71,7 +71,7 @@ class Arguments:
 
         parser.add_argument('--lr', type=float, default=0.001)
 
-        parser.add_argument('--early_stop', type=int, default=10)
+        parser.add_argument('--early_stop', type=int, default=999)
 
         parser.add_argument('--nolog', action='store_true')
 

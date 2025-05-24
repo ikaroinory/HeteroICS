@@ -13,7 +13,7 @@ class OptunaArguments:
         self.report: Literal['label', 'no_label'] = 'label'
 
         self.dataset: str = 'swat'
-        self.dtype = torch.float64
+        self.dtype = torch.float32
         self.device = 'cuda'
 
         self.batch_size: int = trial.suggest_categorical('batch_size', [32, 64, 128])  # best: 256
@@ -37,6 +37,6 @@ class OptunaArguments:
 
         self.lr: float = trial.suggest_float('lr', 9e-5, 1e-2, log=True)  # best: 0.001
 
-        self.early_stop: int = 10
+        self.early_stop: int = 999
 
         self.log: bool = False
