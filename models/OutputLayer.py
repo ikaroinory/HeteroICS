@@ -9,8 +9,7 @@ class OutputLayer(nn.Module):
         if num_layers == 1:
             self.mlp.append(nn.Linear(d_input, 1))
         else:
-            self.mlp.append(nn.Linear(d_input, d_hidden))
-            for i in range(num_layers - 2):
+            for i in range(num_layers - 1):
                 self.mlp.append(nn.Linear(d_hidden, d_hidden))
                 self.mlp.append(nn.BatchNorm1d(d_hidden))
                 self.mlp.append(nn.ReLU())

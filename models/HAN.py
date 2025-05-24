@@ -30,12 +30,12 @@ class HAN(MessagePassing):
                 for edge_type in edge_types
             }
         )
-        # self.semantic_attention = nn.Sequential(
-        #     nn.Linear(d_output, d_output),
-        #     nn.Tanh(),
-        #     nn.Linear(d_output, 1, bias=False)
-        # )
-        self.softmax = nn.Softmax(dim=0)
+        self.semantic_attention = nn.Sequential(
+            nn.Linear(d_output, d_output),
+            nn.Tanh(),
+            nn.Linear(d_output, 1, bias=False),
+            nn.Softmax(dim=0)
+        )
         self.W_beta = nn.Parameter(torch.zeros([d_output, d_output]))
         glorot(self.W_beta)
 
@@ -65,19 +65,12 @@ class HAN(MessagePassing):
 
         z_dict = {}
         for node_type, z_list in z_list_dict.items():
-            # z_all = torch.stack(tuple(z_list), dim=0)
-            #
-            # beta = self.semantic_attention(z_all).mean(dim=1).squeeze()
-            # beta = self.softmax(beta)
-            #
-            # output = torch.sum(beta.view(-1, 1, 1) * z_all, dim=0)
-            #
-            # z_dict[node_type] = output
-
             z_all = torch.stack(tuple(z_list), dim=0)
-            beta = (z_all @ self.W_beta @ x_prime_dict[node_type].T).diagonal(dim1=1, dim2=2).unsqueeze(-1)
-            beta = self.softmax(beta)
+
+            beta = self.semantic_attention(z_all)
+
             output = torch.sum(beta.expand(-1, -1, self.d_output) * z_all, dim=0)
+
             z_dict[node_type] = output
 
         return z_dict
@@ -95,6 +88,7 @@ class HAN(MessagePassing):
         edge_type_str = '->'.join(edge_type)
 
         pi = self.leaky_relu(torch.einsum('nhd,nhd->nh', g, self.w_pi[edge_type_str]))
+        # pi = (pi - pi.mean(dim=0)) / (pi.std(dim=0) + 1e-16)
         alpha = softmax(pi, index=edge_index_i)
 
         return (alpha.view(-1, self.num_heads, 1) * x_j_heads).reshape(-1, self.d_output)
