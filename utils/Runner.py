@@ -22,7 +22,7 @@ from .OptunaArguments import OptunaArguments
 from .evaluate import get_metrics
 
 
-class OptunaRunner:
+class Runner:
     def __init__(self, trail: Trial = None):
         self.__args = OptunaArguments(trail) if trail is not None else Arguments()
 

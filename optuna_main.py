@@ -1,11 +1,11 @@
 import optuna
 from optuna import Trial
 
-from utils import OptunaRunner
+from utils import Runner
 
 
 def objective(trial: Trial) -> float:
-    runner = OptunaRunner(trial)
+    runner = Runner(trial)
     best_train_loss, f1, precision, recall, auc = runner.run()
     return f1
 

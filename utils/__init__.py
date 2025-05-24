@@ -1,2 +1,2 @@
 from .Logger import Logger
-from .OptunaRunner import OptunaRunner
+from .Runner import Runner

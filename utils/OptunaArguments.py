@@ -39,4 +39,4 @@ class OptunaArguments:
 
         self.early_stop: int = 999
 
-        self.log: bool = False
+        self.log: bool = True

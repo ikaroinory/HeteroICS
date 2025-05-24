@@ -1,4 +1,4 @@
-from utils import OptunaRunner
+from utils import Runner
 
 if __name__ == '__main__':
-    OptunaRunner().run()
+    Runner().run()
