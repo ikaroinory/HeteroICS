@@ -37,7 +37,6 @@ class Arguments:
         self.num_output_layer: int = args.num_output_layer
 
         self.lr: float = args.lr
-        self.decay: float = args.decay
 
         self.early_stop: int = args.early_stop
 
