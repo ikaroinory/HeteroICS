@@ -37,7 +37,8 @@ class HeteroICS(nn.Module):
         self.han = HAN(sequence_len, d_hidden, num_heads, node_indices=node_indices, edge_types=edge_types)
         self.process_layer = nn.Sequential(
             nn.BatchNorm1d(d_hidden),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout(0.2)
         )
         self.output_layer = OutputLayer(d_input=d_hidden, d_hidden=d_output_hidden, num_layers=num_output_layer)
 
