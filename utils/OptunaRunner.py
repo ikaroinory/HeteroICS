@@ -10,27 +10,27 @@ import torch
 from optuna import Trial
 from torch import Tensor
 from torch.nn import MSELoss
-from torch.optim import AdamW
+from torch.optim import Adam
 from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
 
 from datasets import HeteroICSDataset
 from models import HeteroICS
-from utils import Logger
-from utils.evaluate import get_metrics
-from utils.optuna_utils import OptunaArguments
+from .Arguments import Arguments
+from .Logger import Logger
+from .OptunaArguments import OptunaArguments
+from .evaluate import get_metrics
 
 
 class OptunaRunner:
-    def __init__(self, trail: Trial):
-        self.__args = OptunaArguments(trail)
+    def __init__(self, trail: Trial = None):
+        self.__args = OptunaArguments(trail) if trail is not None else Arguments()
 
         self.start_time = datetime.now().strftime('%Y%m%d_%H%M%S')
-
         self.__log_path = Path(f'logs/{self.__args.dataset}/{self.start_time}.log')
         self.__model_path = Path(f'saves/{self.__args.dataset}/{self.start_time}.pth')
 
-        Logger.init(self.__log_path)
+        Logger.init(self.__log_path if self.__args.log else None)
 
         Logger.info('Setting seed...')
         self.__set_seed()
@@ -61,7 +61,7 @@ class OptunaRunner:
             dtype=self.__args.dtype,
             device=self.__args.device
         )
-        self.__optimizer = AdamW(self.__model.parameters(), lr=self.__args.lr, weight_decay=self.__args.decay)
+        self.__optimizer = Adam(self.__model.parameters(), lr=self.__args.lr)
         self.__loss = MSELoss()
 
     def __set_seed(self) -> None:
@@ -112,7 +112,7 @@ class OptunaRunner:
             dtype=self.__args.dtype
         )
 
-        train_dataloader, valid_dataloader = self.__get_train_and_valid_dataloader(train_dataset, 0.2)
+        train_dataloader, valid_dataloader = self.__get_train_and_valid_dataloader(train_dataset, 0.1)
 
         self.__set_seed()
         test_dataloader = DataLoader(test_dataset, batch_size=self.__args.batch_size, shuffle=False)
@@ -170,38 +170,23 @@ class OptunaRunner:
 
         return total_valid_loss / len(dataloader.dataset), (predicted_tensor, actual_tensor, label_tensor)
 
-    def __train(self) -> tuple[float, float]:
+    def __train(self) -> float:
         Logger.info('Training...')
 
         best_epoch = -1
-        best_train_loss_with_best_epoch = float('inf')
         best_train_loss = float('inf')
-        best_valid_loss = float('inf')
         best_model_weights = copy.deepcopy(self.__model.state_dict())
         no_improve_count = 0
 
         for epoch in tqdm(range(self.__args.epochs)):
             train_loss = self.__train_epoch()
-            valid_loss, _ = self.__valid_epoch(self.__valid_dataloader)
 
             Logger.info(f'Epoch {epoch + 1}:')
             Logger.info(f' - Train loss: {train_loss:.8f}')
-            Logger.info(f' - Valid loss: {valid_loss:.8f}')
 
-            # if valid_loss < best_valid_loss:
-            #     best_epoch = epoch + 1
-            #
-            #     best_train_loss_with_best_epoch = train_loss
-            #     best_valid_loss = valid_loss
-            #
-            #     best_model_weights = copy.deepcopy(self.__model.state_dict())
-            #     no_improve_count = 0
-            # else:
-            #     no_improve_count += 1
             if train_loss < best_train_loss:
                 best_epoch = epoch + 1
 
-                best_train_loss_with_best_epoch = train_loss
                 best_train_loss = train_loss
 
                 best_model_weights = copy.deepcopy(self.__model.state_dict())
@@ -218,11 +203,10 @@ class OptunaRunner:
         torch.save(best_model_weights, self.__model_path)
 
         Logger.info(f'Best epoch: {best_epoch}')
-        Logger.info(f' - Train loss: {best_train_loss_with_best_epoch:.8f}')
-        Logger.info(f' - Valid loss: {best_valid_loss:.8f}')
+        Logger.info(f' - Train loss: {best_train_loss:.8f}')
         Logger.info(f'Model save to {self.__model_path}')
 
-        return best_train_loss_with_best_epoch, best_valid_loss
+        return best_train_loss
 
     def __evaluate(self, model_name: Path) -> tuple[float, float, float, float]:
         Logger.info('Evaluating...')
@@ -243,7 +227,7 @@ class OptunaRunner:
 
         return f1, precision, recall, auc
 
-    def run(self) -> tuple[float, float, float, float, float, float]:
-        best_train_loss_with_best_epoch, best_valid_loss = self.__train()
+    def run(self) -> tuple[float, float, float, float, float]:
+        best_train_loss = self.__train()
         f1, precision, recall, auc = self.__evaluate(self.__model_path)
-        return best_train_loss_with_best_epoch, best_valid_loss, f1, precision, recall, auc
+        return best_train_loss, f1, precision, recall, auc

@@ -36,7 +36,6 @@ class OptunaArguments:
         self.num_output_layer: int = trial.suggest_int('num_output_layer', 1, 5)  # best: 2
 
         self.lr: float = trial.suggest_float('lr', 9e-5, 1e-2, log=True)  # best: 0.001
-        self.decay: float = trial.suggest_float('decay', 9e-5, 1e-2, log=True)
 
         self.early_stop: int = 10
 

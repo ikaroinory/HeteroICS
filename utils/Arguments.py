@@ -38,7 +38,6 @@ class Arguments:
 
         self.lr: float = args.lr
         self.decay: float = args.decay
-        self.dropout: float = args.dropout
 
         self.early_stop: int = args.early_stop
 
@@ -55,7 +54,7 @@ class Arguments:
         parser.add_argument('--report', type=str, choices=['label', 'no_label'], default='label')
 
         parser.add_argument('-ds', '--dataset', type=str, default='swat')
-        parser.add_argument('--dtype', choices=['float', 'double'], default='float')
+        parser.add_argument('--dtype', choices=['float', 'double'], default='double')
         parser.add_argument('--device', type=str, choices=['cuda', 'cpu'], default='cuda')
 
         parser.add_argument('-b', '--batch_size', type=int, default=64)
@@ -72,8 +71,6 @@ class Arguments:
         parser.add_argument('--num_output_layer', type=int, default=4)
 
         parser.add_argument('--lr', type=float, default=0.001)
-        parser.add_argument('--decay', type=float, default=0.01)
-        parser.add_argument('--dropout', type=float, default=0.15)
 
         parser.add_argument('--early_stop', type=int, default=10)
 
