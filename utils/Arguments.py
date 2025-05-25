@@ -50,7 +50,7 @@ class Arguments:
 
         parser.add_argument('--model', type=str)
 
-        parser.add_argument('--report', type=str, choices=['label', 'no_label'], default='label')
+        parser.add_argument('--report', type=str, choices=['label', 'no_label'], default='no_label')
 
         parser.add_argument('-ds', '--dataset', type=str, default='swat')
         parser.add_argument('--dtype', choices=['float', 'double'], default='float')

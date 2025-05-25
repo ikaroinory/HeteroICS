@@ -10,14 +10,14 @@ class OptunaArguments:
 
         self.model_path: str | None = None
 
-        self.report: Literal['label', 'no_label'] = 'label'
+        self.report: Literal['label', 'no_label'] = 'no_label'
 
         self.dataset: str = 'swat'
         self.dtype = torch.float32
         self.device = 'cuda'
 
         self.batch_size: int = trial.suggest_categorical('batch_size', [32, 64, 128, 256, 512])  # best: 256
-        self.epochs: int = 200
+        self.epochs: int = 50
 
         self.slide_window: int = trial.suggest_int('slide_window', 5, 50)
         self.slide_stride: int = 1
@@ -37,6 +37,6 @@ class OptunaArguments:
 
         self.lr: float = trial.suggest_float('lr', 1e-4, 1e-2, log=True)  # best: 0.001
 
-        self.early_stop: int = 999
+        self.early_stop: int = 20
 
         self.log: bool = True

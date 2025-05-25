@@ -6,7 +6,7 @@ from utils import Runner
 
 def objective(trial: Trial) -> float:
     runner = Runner(trial)
-    f1, precision, recall, auc = runner.run()
+    precision, recall, fpr, fnr, f1 = runner.run()
     return f1
 
 

@@ -12,6 +12,7 @@ from torch import Tensor
 from torch.nn import MSELoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, Subset
+from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from datasets import HeteroICSDataset
@@ -24,6 +25,7 @@ from .evaluate import get_metrics
 
 class Runner:
     def __init__(self, trail: Trial = None):
+        self.__writer = SummaryWriter()
         self.__args = OptunaArguments(trail) if trail is not None else Arguments()
 
         self.start_time = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -170,24 +172,29 @@ class Runner:
 
         return total_valid_loss / len(dataloader.dataset), (predicted_tensor, actual_tensor, label_tensor)
 
-    def __train(self) -> float:
+    def __train(self) -> None:
         Logger.info('Training...')
 
         best_epoch = -1
-        best_train_loss = float('inf')
+        best_valid_loss = float('inf')
         best_model_weights = copy.deepcopy(self.__model.state_dict())
         no_improve_count = 0
 
         for epoch in tqdm(range(self.__args.epochs)):
             train_loss = self.__train_epoch()
+            valid_loss, _ = self.__valid_epoch(self.__valid_dataloader)
+
+            self.__writer.add_scalar('Loss/train', train_loss, epoch)
+            self.__writer.add_scalar('Loss/valid', valid_loss, epoch)
 
             Logger.info(f'Epoch {epoch + 1}:')
             Logger.info(f' - Train loss: {train_loss:.8f}')
+            Logger.info(f' - Valid loss: {valid_loss:.8f}')
 
-            if train_loss < best_train_loss:
+            if valid_loss < best_valid_loss:
                 best_epoch = epoch + 1
 
-                best_train_loss = train_loss
+                best_valid_loss = valid_loss
 
                 best_model_weights = copy.deepcopy(self.__model.state_dict())
                 no_improve_count = 0
@@ -203,35 +210,33 @@ class Runner:
         torch.save(best_model_weights, self.__model_path)
 
         Logger.info(f'Best epoch: {best_epoch}')
-        Logger.info(f' - Train loss: {best_train_loss:.8f}')
+        Logger.info(f' - Valid loss: {best_valid_loss:.8f}')
         Logger.info(f'Model save to {self.__model_path}')
 
-        return best_train_loss
-
-    def __evaluate(self, model_name: Path) -> tuple[float, float, float, float]:
+    def __evaluate(self, model_name: Path) -> tuple[float, float, float, float, float]:
         Logger.info('Evaluating...')
 
         self.__model.load_state_dict(torch.load(f'{model_name}', weights_only=True))
 
         _, valid_result = self.__valid_epoch(self.__valid_dataloader)
-        test_loss, test_result = self.__valid_epoch(self.__test_dataloader)
+        _, test_result = self.__valid_epoch(self.__test_dataloader)
 
-        Logger.info(f' - Test loss: {test_loss:.8f}')
-
-        f1, precision, recall, auc = get_metrics(test_result, valid_result if self.__args.report == 'label' else None)
+        precision, recall, fpr, fnr, f1 = get_metrics(test_result, valid_result if self.__args.report == 'label' else None)
 
         Logger.info(f' - F1 score: {f1:.4f}')
         Logger.info(f' - Precision: {precision:.4f}')
         Logger.info(f' - Recall: {recall:.4f}')
-        Logger.info(f' - AUC: {auc:.4f}')
+        Logger.info(f' - FPR: {fpr:.4f}')
+        Logger.info(f' - FNR: {fnr:.4f}')
 
-        return f1, precision, recall, auc
+        return precision, recall, fpr, fnr, f1
 
-    def run(self) -> tuple[float, float, float, float]:
+    def run(self) -> tuple[float, float, float, float, float]:
         if self.__args.model_path is None:
-            _ = self.__train()
-            f1, precision, recall, auc = self.__evaluate(self.__model_path)
+            self.__train()
+            precision, recall, fpr, fnr, f1 = self.__evaluate(self.__model_path)
         else:
-            f1, precision, recall, auc = self.__evaluate(Path(self.__args.model_path))
+            precision, recall, fpr, fnr, f1 = self.__evaluate(Path(self.__args.model_path))
 
-        return f1, precision, recall, auc
+        self.__writer.close()
+        return precision, recall, fpr, fnr, f1

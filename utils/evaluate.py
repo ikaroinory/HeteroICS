@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
-from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score
+from sklearn.metrics import confusion_matrix, f1_score, precision_recall_curve, precision_score, recall_score
 from torch import Tensor
 
 
@@ -21,7 +21,7 @@ def get_total_error_score(result: tuple[Tensor, Tensor, Tensor], smooth_window: 
 
 
 def get_f1_with_label(error_score: Tensor, actual_label: Tensor) -> tuple[float, Tensor]:
-    steps = 400
+    steps = 1000
 
     threshold_rank_list = torch.tensor(np.linspace(0, error_score.shape[-1], steps, endpoint=False))
     _, index = error_score.sort(descending=True)
@@ -48,7 +48,7 @@ def get_metrics(
     test_result: tuple[Tensor, Tensor, Tensor],
     valid_result: tuple[Tensor, Tensor, Tensor] = None,
     smooth_window: int = 4
-) -> tuple[float, float, float, float]:
+) -> tuple[float, float, float, float, float]:
     test_error_score = get_total_error_score(test_result, smooth_window)
 
     actual_labels = test_result[2].cpu()
@@ -57,14 +57,26 @@ def get_metrics(
 
         threshold = torch.max(valid_error_score)
 
-        predict_labels = (test_error_score > threshold).long().cpu()
+        predict_labels = (test_error_score > threshold).long()
 
-        f1 = f1_score(actual_labels, predict_labels)
+        f1 = f1_score(actual_labels, predict_labels.cpu())
     else:
-        f1, predict_labels = get_f1_with_label(test_error_score, actual_labels)
+        test_error_score = test_error_score.cpu()
+
+        precision, recall, thresholds = precision_recall_curve(actual_labels, test_error_score)
+        f1_score_list = 2 * precision * recall / (precision + recall + 1e-8)
+
+        best_index = f1_score_list.argmax()
+        best_threshold = thresholds[best_index]
+
+        predict_labels = (test_error_score > best_threshold)
+        f1 = f1_score_list[best_index]
+
+    tn, fp, fn, tp = confusion_matrix(actual_labels, predict_labels).ravel()
 
     precision = precision_score(actual_labels, predict_labels)
     recall = recall_score(actual_labels, predict_labels)
-    auc = roc_auc_score(actual_labels, predict_labels)
+    fnr = fn / (fn + tp)
+    fpr = fp / (fp + tn)
 
-    return f1, precision, recall, auc
+    return precision, recall, fpr, fnr, f1
