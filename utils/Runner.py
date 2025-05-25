@@ -227,7 +227,11 @@ class Runner:
 
         return f1, precision, recall, auc
 
-    def run(self) -> tuple[float, float, float, float, float]:
-        best_train_loss = self.__train()
-        f1, precision, recall, auc = self.__evaluate(self.__model_path)
-        return best_train_loss, f1, precision, recall, auc
+    def run(self) -> tuple[float, float, float, float]:
+        if self.__args.model_path is None:
+            _ = self.__train()
+            f1, precision, recall, auc = self.__evaluate(self.__model_path)
+        else:
+            f1, precision, recall, auc = self.__evaluate(Path(self.__args.model_path))
+
+        return f1, precision, recall, auc
