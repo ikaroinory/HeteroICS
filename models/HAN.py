@@ -42,11 +42,6 @@ class HAN(MessagePassing):
         self.leaky_relu = nn.LeakyReLU()
 
     def forward(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[str, Tensor]:
-        x_prime_dict = {}
-        for node_type, x in x_dict.items():
-            # x: [num_nodes * batch_size, sequence_len]
-            x_prime_dict[node_type] = self.W_x_phi[node_type](x)  # [num_nodes, d_output]
-
         z_list_dict: dict[str, list[Tensor]] = defaultdict(list)
         for edge_type, edge_index in edge_index_dict.items():
             src_type, _, dst_type = edge_type
@@ -55,7 +50,7 @@ class HAN(MessagePassing):
             # print(g_dict[dst_type][edge_index[1]])  # xi
             z: Tensor = self.propagate(
                 edge_index,
-                x=(x_prime_dict[src_type], x_prime_dict[dst_type]),
+                x=(x_dict[src_type], x_dict[dst_type]),
                 v=(v_dict[src_type], v_dict[dst_type]),
                 edge_type=edge_type
             )
