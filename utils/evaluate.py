@@ -57,9 +57,9 @@ def get_metrics(
 
         threshold = torch.max(valid_error_score)
 
-        predict_labels = (test_error_score > threshold).long()
+        predict_labels = (test_error_score > threshold).long().cpu()
 
-        f1 = f1_score(actual_labels, predict_labels.cpu())
+        f1 = f1_score(actual_labels, predict_labels)
     else:
         test_error_score = test_error_score.cpu()
 
