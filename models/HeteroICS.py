@@ -93,10 +93,7 @@ class HeteroICS(nn.Module):
         v_dict = {node_type: v_flatten[node_indices_flatten[node_type]] for node_type in self.node_types}
 
         edge_index_dict = {}
-        step_basic_dict = {
-            node_type: torch.arange(batch_size, device=self.device) * self.num_nodes_dict[node_type]
-            for node_type in self.node_types
-        }
+        step_basic_dict = {node_type: torch.arange(batch_size, device=self.device) * self.num_nodes_dict[node_type] for node_type in self.node_types}
         for edge_type in self.edge_types:
             src_type, _, dst_type = edge_type
 
@@ -115,8 +112,8 @@ class HeteroICS(nn.Module):
 
         p_flatten = torch.zeros([batch_size * self.num_nodes, self.d_hidden], dtype=self.dtype, device=self.device)
         for node_type, indices in node_indices_flatten.items():
-            # p_flatten[indices] = z_dict[node_type] * v_flatten[indices]
-            p_flatten[indices] = z_dict[node_type] + v_flatten[indices]
+            p_flatten[indices] = z_dict[node_type] * v_flatten[indices] + v_flatten[indices]
+            # p_flatten[indices] = z_dict[node_type] + v_flatten[indices]
 
         p_flatten = self.process_layer(p_flatten)
         output = self.output_layer(p_flatten).reshape(batch_size, -1)

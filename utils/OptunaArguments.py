@@ -16,10 +16,10 @@ class OptunaArguments:
         self.dtype = torch.float32
         self.device = 'cuda'
 
-        self.batch_size: int = trial.suggest_categorical('batch_size', [32, 64, 128, 256, 512])  # best: 256
+        self.batch_size: int = 256
         self.epochs: int = 1000
 
-        self.slide_window: int = trial.suggest_int('slide_window', 5, 50)
+        self.slide_window: int = trial.suggest_int('slide_window', 5, 20)
         self.slide_stride: int = 1
         # best: 5
         self.k_dict: dict[tuple[str, str, str], int] = {

@@ -88,7 +88,6 @@ class HAN(MessagePassing):
         edge_type_str = '->'.join(edge_type)
 
         pi = self.leaky_relu(torch.einsum('nhd,nhd->nh', g, self.w_pi[edge_type_str]))
-        # pi = (pi - pi.mean(dim=0)) / (pi.std(dim=0) + 1e-16)
         alpha = softmax(pi, index=edge_index_i)
 
         return (alpha.view(-1, self.num_heads, 1) * x_j_heads).reshape(-1, self.d_output)

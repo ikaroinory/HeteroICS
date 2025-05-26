@@ -63,8 +63,8 @@ class Runner:
             dtype=self.__args.dtype,
             device=self.__args.device
         )
-        self.__optimizer = Adam(self.__model.parameters(), lr=self.__args.lr)
         self.__loss = MSELoss()
+        self.__optimizer = Adam(self.__model.parameters(), lr=self.__args.lr)
 
     def __set_seed(self) -> None:
         random.seed(self.__args.seed)
@@ -114,7 +114,7 @@ class Runner:
             dtype=self.__args.dtype
         )
 
-        train_dataloader, valid_dataloader = self.__get_train_and_valid_dataloader(train_dataset, 0.1)
+        train_dataloader, valid_dataloader = self.__get_train_and_valid_dataloader(train_dataset, 0.2)
 
         self.__set_seed()
         test_dataloader = DataLoader(test_dataset, batch_size=self.__args.batch_size, shuffle=False)
@@ -178,7 +178,7 @@ class Runner:
         best_epoch = -1
         best_valid_loss = float('inf')
         best_model_weights = copy.deepcopy(self.__model.state_dict())
-        no_improve_count = 0
+        patience_counter = 0
 
         for epoch in tqdm(range(self.__args.epochs)):
             train_loss = self.__train_epoch()
@@ -197,13 +197,13 @@ class Runner:
                 best_valid_loss = valid_loss
 
                 best_model_weights = copy.deepcopy(self.__model.state_dict())
-                no_improve_count = 0
+                patience_counter = 0
             else:
-                no_improve_count += 1
+                patience_counter += 1
 
             Logger.info(f' - Current best epoch: {best_epoch}')
 
-            if no_improve_count >= self.__args.early_stop:
+            if patience_counter >= self.__args.early_stop:
                 break
 
         self.__model_path.parent.mkdir(parents=True, exist_ok=True)
