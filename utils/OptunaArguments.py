@@ -16,7 +16,7 @@ class OptunaArguments:
         self.dtype = torch.float32
         self.device = 'cuda'
 
-        self.batch_size: int = 512
+        self.batch_size: int = 32
         self.epochs: int = 1000
 
         self.slide_window: int = trial.suggest_int('slide_window', 5, 20)
