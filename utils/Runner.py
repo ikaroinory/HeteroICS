@@ -9,7 +9,7 @@ import pandas as pd
 import torch
 from optuna import Trial
 from torch import Tensor
-from torch.nn import MSELoss
+from torch.nn import L1Loss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, Subset
 from torch.utils.tensorboard import SummaryWriter
@@ -63,7 +63,7 @@ class Runner:
             dtype=self.__args.dtype,
             device=self.__args.device
         )
-        self.__loss = MSELoss()
+        self.__loss = L1Loss()
         self.__optimizer = Adam(self.__model.parameters(), lr=self.__args.lr)
 
     def __set_seed(self) -> None:
@@ -97,7 +97,8 @@ class Runner:
     def __get_dataloaders(self) -> tuple[DataLoader, DataLoader, DataLoader]:
         train_df = pd.read_csv(f'data/processed/{self.__args.dataset}/train.csv')
         train_np = train_df.to_numpy()
-        test_np = pd.read_csv(f'data/processed/{self.__args.dataset}/test.csv').to_numpy()
+        test_df = pd.read_csv(f'data/processed/{self.__args.dataset}/test.csv')
+        test_np = test_df.to_numpy()
 
         train_dataset = HeteroICSDataset(
             train_np,
