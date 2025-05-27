@@ -23,10 +23,15 @@ class HAN(MessagePassing):
         self.d_output = d_output
         self.num_heads = num_heads
 
-        self.W_x_phi = nn.ModuleDict({node_type: nn.Linear(x_input, d_output, bias=False) for node_type in self.node_types})
         self.w_pi = nn.ParameterDict(
             {
                 '->'.join(edge_type): nn.Parameter(torch.zeros([1, num_heads, (d_output // num_heads) * 4]))
+                for edge_type in edge_types
+            }
+        )
+        self.process_layer_dict = nn.ModuleDict(
+            {
+                '->'.join(edge_type): nn.Sequential(nn.BatchNorm1d(d_output), nn.LeakyReLU())
                 for edge_type in edge_types
             }
         )
@@ -54,7 +59,8 @@ class HAN(MessagePassing):
                 v=(v_dict[src_type], v_dict[dst_type]),
                 edge_type=edge_type
             )
-            z = self.leaky_relu(z)  # [num_nodes, d_output]
+            z = self.process_layer_dict['->'.join(edge_type)](z)  # [num_nodes, d_output]
+            # z = self.leaky_relu(z)  # [num_nodes, d_output]
 
             z_list_dict[dst_type].append(z)
 
