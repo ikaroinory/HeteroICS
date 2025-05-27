@@ -7,7 +7,7 @@ from torch_geometric.nn.inits import glorot
 from torch_geometric.utils import softmax
 
 
-class HAN(MessagePassing):
+class GraphLayer(MessagePassing):
     def __init__(
         self,
         x_input: int,
@@ -23,22 +23,12 @@ class HAN(MessagePassing):
         self.d_output = d_output
         self.num_heads = num_heads
 
-        self.w_pi = nn.ParameterDict(
-            {
-                '->'.join(edge_type): nn.Parameter(torch.zeros([1, num_heads, (d_output // num_heads) * 4]))
-                for edge_type in edge_types
-            }
-        )
-        self.process_layer_dict = nn.ModuleDict(
-            {
-                '->'.join(edge_type): nn.Sequential(nn.BatchNorm1d(d_output), nn.LeakyReLU())
-                for edge_type in edge_types
-            }
-        )
-        self.semantic_attention = nn.Sequential(
-            nn.Linear(d_output, d_output),
+        self.w_pi = nn.ParameterDict({'->'.join(edge_type): nn.Parameter(torch.zeros([1, num_heads, (d_output // num_heads) * 4])) for edge_type in edge_types})
+        self.process_layer_dict = nn.ModuleDict({'->'.join(edge_type): nn.LeakyReLU() for edge_type in edge_types})
+        self.semantic_attention_layer = nn.Sequential(
+            nn.Linear(d_output * 2, d_output * 2),
             nn.Tanh(),
-            nn.Linear(d_output, 1, bias=False),
+            nn.Linear(d_output * 2, 1, bias=False),
             nn.Softmax(dim=0)
         )
         self.W_beta = nn.Parameter(torch.zeros([d_output, d_output]))
@@ -55,32 +45,32 @@ class HAN(MessagePassing):
             # print(g_dict[dst_type][edge_index[1]])  # xi
             z: Tensor = self.propagate(
                 edge_index,
-                x=(x_dict[src_type], x_dict[dst_type]),
-                v=(v_dict[src_type], v_dict[dst_type]),
+                x_proj=(x_dict[src_type], x_dict[dst_type]),
+                v_proj=(v_dict[src_type], v_dict[dst_type]),
                 edge_type=edge_type
             )
-            z = self.process_layer_dict['->'.join(edge_type)](z)  # [num_nodes, d_output]
-            # z = self.leaky_relu(z)  # [num_nodes, d_output]
+            z = self.process_layer_dict['->'.join(edge_type)](z)  # [num_nodes, d_output * 2]
 
             z_list_dict[dst_type].append(z)
 
         z_dict = {}
         for node_type, z_list in z_list_dict.items():
             z_all = torch.stack(tuple(z_list), dim=0)
+            x_all = z_all[:, :, self.d_output:]
 
-            beta = self.semantic_attention(z_all)
+            beta = self.semantic_attention_layer(z_all)
 
-            output = torch.sum(beta.expand(-1, -1, self.d_output) * z_all, dim=0)
+            output = torch.sum(beta.expand(-1, -1, self.d_output) * x_all, dim=0)
 
             z_dict[node_type] = output
 
         return z_dict
 
-    def message(self, x_j: Tensor, x_i: Tensor, v_j: Tensor, v_i: Tensor, edge_index_i: Tensor, edge_type: tuple[str, str, str]) -> Tensor:
-        x_i_heads = x_i.reshape(-1, self.num_heads, self.d_output // self.num_heads)
-        x_j_heads = x_j.reshape(-1, self.num_heads, self.d_output // self.num_heads)
-        v_i_heads = v_i.reshape(-1, self.num_heads, self.d_output // self.num_heads)
-        v_j_heads = v_j.reshape(-1, self.num_heads, self.d_output // self.num_heads)
+    def message(self, x_proj_j: Tensor, x_proj_i: Tensor, v_proj_j: Tensor, v_proj_i: Tensor, edge_index_i: Tensor, edge_type: tuple[str, str, str]) -> Tensor:
+        x_i_heads = x_proj_i.reshape(-1, self.num_heads, self.d_output // self.num_heads)
+        x_j_heads = x_proj_j.reshape(-1, self.num_heads, self.d_output // self.num_heads)
+        v_i_heads = v_proj_i.reshape(-1, self.num_heads, self.d_output // self.num_heads)
+        v_j_heads = v_proj_j.reshape(-1, self.num_heads, self.d_output // self.num_heads)
 
         g_i = torch.cat([v_i_heads, x_i_heads], dim=-1)  # [num_nodes, num_heads, (d_output // num_heads) * 2]
         g_j = torch.cat([v_j_heads, x_j_heads], dim=-1)
@@ -91,7 +81,7 @@ class HAN(MessagePassing):
         pi = self.leaky_relu(torch.einsum('nhd,nhd->nh', g, self.w_pi[edge_type_str]))
         alpha = softmax(pi, index=edge_index_i)
 
-        return (alpha.view(-1, self.num_heads, 1) * x_j_heads).reshape(-1, self.d_output)
+        return (alpha.view(-1, self.num_heads, 1) * g_j).reshape(-1, self.d_output * 2)
 
     def __call__(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[str, Tensor]:
         return super().__call__(x_dict, v_dict, edge_index_dict)

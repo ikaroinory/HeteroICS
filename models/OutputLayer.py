@@ -18,21 +18,6 @@ class OutputLayer(nn.Module):
                 self.mlp.append(nn.LeakyReLU())
             self.mlp.append(nn.Linear(d_hidden, 1))
 
-        self.init_params()
-
-    def init_params(self):
-        if self.num_layers == 1:
-            nn.init.xavier_uniform_(self.res_layer.weight)
-            nn.init.zeros_(self.res_layer.bias)
-
-        for layer in self.mlp:
-            if isinstance(layer, nn.Linear):
-                nn.init.xavier_uniform_(layer.weight)
-                nn.init.zeros_(layer.bias)
-            elif isinstance(layer, nn.BatchNorm1d):
-                nn.init.constant_(layer.weight, 1)
-                nn.init.constant_(layer.bias, 0)
-
     def forward(self, x: Tensor) -> Tensor:
         output = x
         for model in self.mlp:
