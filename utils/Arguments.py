@@ -37,6 +37,7 @@ class Arguments:
         self.num_output_layer: int = args.num_output_layer
 
         self.lr: float = args.lr
+        self.dropout: float = args.dropout
 
         self.early_stop: int = args.early_stop
 
@@ -72,6 +73,7 @@ class Arguments:
         parser.add_argument('--lr', type=float, default=0.0002)
 
         parser.add_argument('--early_stop', type=int, default=20)
+        parser.add_argument('--dropout', type=float, default=0)
 
         parser.add_argument('--nolog', action='store_true')
 

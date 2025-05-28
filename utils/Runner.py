@@ -10,7 +10,7 @@ import pandas as pd
 import torch
 from optuna import Trial
 from torch import Tensor
-from torch.nn import L1Loss
+from torch.nn import MSELoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, Subset
 from torch.utils.tensorboard import SummaryWriter
@@ -59,12 +59,13 @@ class Runner:
             num_heads=self.__args.num_heads,
             num_output_layer=self.__args.num_output_layer,
             k_dict=self.__args.k_dict,
+            dropout=self.__args.dropout,
             node_indices=node_indices,
             edge_types=edge_types,
             dtype=self.__args.dtype,
             device=self.__args.device
         )
-        self.__loss = L1Loss()
+        self.__loss = MSELoss()
         self.__optimizer = Adam(self.__model.parameters(), lr=self.__args.lr)
 
     def __set_seed(self) -> None:
