@@ -11,11 +11,10 @@ best_f1 = 0
 
 
 def objective(trial: Trial) -> float:
+    global best_f1
     runner = Runner(trial)
     precision, recall, fpr, fnr, f1 = runner.run()
-
     if f1 > best_f1:
-        global best_f1
         best_f1 = f1
 
         client = (
@@ -56,7 +55,9 @@ def objective(trial: Trial) -> float:
 
 if __name__ == '__main__':
     db_string = f'sqlite:///./optuna.db'
-    study = optuna.create_study(study_name='Hetero - New Network - 0528', direction='maximize', storage=db_string, load_if_exists=True, sampler=samplers.RandomSampler())
+    study = optuna.create_study(
+        study_name='Hetero - New Network - 0528', direction='maximize', storage=db_string, load_if_exists=True, sampler=samplers.RandomSampler()
+    )
 
     study.optimize(objective, n_trials=1000)
 
