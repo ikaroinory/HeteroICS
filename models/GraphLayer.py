@@ -38,6 +38,7 @@ class GraphLayer(MessagePassing):
             nn.Linear(d_output * 2, d_output * 2),
             nn.Tanh(),
             nn.Linear(d_output * 2, 1, bias=False),
+            nn.LeakyReLU(),
             nn.Softmax(dim=0)
         )
 
@@ -66,6 +67,7 @@ class GraphLayer(MessagePassing):
             x_all = z_all[:, :, self.d_output:]
 
             beta = self.semantic_attention_layer(z_all)
+            beta = self.dropout(beta)
 
             output = torch.sum(beta.expand(-1, -1, self.d_output) * x_all, dim=0)
 
