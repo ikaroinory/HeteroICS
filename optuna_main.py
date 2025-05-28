@@ -55,8 +55,8 @@ def objective(trial: Trial) -> float:
 
 
 if __name__ == '__main__':
-    db_string = f'sqlite:///optuna.db'
-    study = optuna.create_study(study_name='Hetero', direction='maximize', storage=db_string, load_if_exists=True, sampler=samplers.RandomSampler())
+    db_string = f'sqlite:///./optuna.db'
+    study = optuna.create_study(study_name='Hetero - New Network - 0528', direction='maximize', storage=db_string, load_if_exists=True, sampler=samplers.RandomSampler())
 
     study.optimize(objective, n_trials=1000)
 
