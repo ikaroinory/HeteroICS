@@ -14,6 +14,7 @@ class HeteroICS(nn.Module):
         num_heads: int,
         num_output_layer: int,
         k_dict: dict[tuple[str, str, str], int],
+        dropout: float = 0,
         *,
         node_indices: dict[str, list[int]],
         edge_types: list[tuple[str, str, str]],
@@ -35,10 +36,15 @@ class HeteroICS(nn.Module):
         )
         self.x_proj_layer_dict = nn.ModuleDict({node_type: nn.Sequential(nn.Linear(sequence_len, d_hidden)) for node_type in self.node_types})
         self.v_proj_layer_dict = nn.ModuleDict({node_type: nn.Sequential(nn.Linear(d_hidden, d_hidden)) for node_type in self.node_types})
-        self.graph_layer = GraphLayer(sequence_len, d_hidden, num_heads, node_indices=node_indices, edge_types=edge_types)
+        self.graph_layer = GraphLayer(sequence_len, d_hidden, num_heads, dropout, node_indices=node_indices, edge_types=edge_types)
         self.graph_output_process_layer = nn.Sequential(
             nn.BatchNorm1d(d_hidden),
-            nn.LeakyReLU()
+            nn.ReLU(),
+        )
+        self.process_layer = nn.Sequential(
+            nn.BatchNorm1d(d_hidden),
+            nn.ReLU(),
+            nn.Dropout(dropout)
         )
         self.output_layer = OutputLayer(d_input=d_hidden, d_hidden=d_output_hidden, num_layers=num_output_layer)
 
@@ -66,8 +72,8 @@ class HeteroICS(nn.Module):
 
     @staticmethod
     def __cos_similarity(x: Tensor, y: Tensor) -> Tensor:
-        x_norm = x.norm(dim=-1).unsqueeze(-1)
-        y_norm = y.norm(dim=-1).unsqueeze(-1)
+        x_norm = x.norm(dim=-1).unsqueeze(-1) + 1e-8
+        y_norm = y.norm(dim=-1).unsqueeze(-1) + 1e-8
 
         return (x @ y.T) / (x_norm @ y_norm.T)
 
@@ -110,11 +116,16 @@ class HeteroICS(nn.Module):
 
         z_dict = self.graph_layer(x_proj_dict, v_proj_dict, edge_index_dict)
 
+        z_flatten = torch.zeros([batch_size * self.num_nodes, self.d_hidden], dtype=self.dtype, device=self.device)
+        for node_type, indices in node_indices_flatten.items():
+            z_flatten[indices] = z_dict[node_type]
+        z_flatten = self.graph_output_process_layer(z_flatten)
+
         p_flatten = torch.zeros([batch_size * self.num_nodes, self.d_hidden], dtype=self.dtype, device=self.device)
         for node_type, indices in node_indices_flatten.items():
-            p_flatten[indices] = z_dict[node_type] * v_proj_dict[node_type] + x_proj_dict[node_type]
+            p_flatten[indices] = z_flatten[indices] * v_proj_dict[node_type] + x_proj_dict[node_type]
+        p_flatten = self.process_layer(p_flatten)
 
-        p_flatten = self.graph_output_process_layer(p_flatten)
         output = self.output_layer(p_flatten).reshape(batch_size, -1)
 
         return output

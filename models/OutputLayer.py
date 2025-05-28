@@ -11,11 +11,10 @@ class OutputLayer(nn.Module):
         if num_layers == 1:
             self.mlp.append(nn.Linear(d_input, 1))
         else:
-            self.res_layer = nn.Linear(d_input, 1)
             for i in range(num_layers - 1):
                 self.mlp.append(nn.Linear(d_input if i == 0 else d_hidden, d_hidden))
                 self.mlp.append(nn.BatchNorm1d(d_hidden))
-                self.mlp.append(nn.LeakyReLU())
+                self.mlp.append(nn.ReLU())
             self.mlp.append(nn.Linear(d_hidden, 1))
 
     def forward(self, x: Tensor) -> Tensor:
@@ -23,7 +22,7 @@ class OutputLayer(nn.Module):
         for model in self.mlp:
             output = model(output)
 
-        return output if self.num_layers == 1 else output + self.res_layer(x)
+        return output
 
     def __call__(self, x: Tensor) -> Tensor:
         return super().__call__(x)

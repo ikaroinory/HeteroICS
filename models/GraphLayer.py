@@ -3,7 +3,6 @@ from collections import defaultdict
 import torch
 from torch import Tensor, nn
 from torch_geometric.nn import MessagePassing
-from torch_geometric.nn.inits import glorot
 from torch_geometric.utils import softmax
 
 
@@ -13,6 +12,7 @@ class GraphLayer(MessagePassing):
         x_input: int,
         d_output: int,
         num_heads: int,
+        dropout: float = 0,
         *,
         node_indices: dict[str, list[int]],
         edge_types: list[tuple[str, str, str]]
@@ -24,15 +24,22 @@ class GraphLayer(MessagePassing):
         self.num_heads = num_heads
 
         self.w_pi = nn.ParameterDict({'->'.join(edge_type): nn.Parameter(torch.zeros([1, num_heads, (d_output // num_heads) * 4])) for edge_type in edge_types})
-        self.process_layer_dict = nn.ModuleDict({'->'.join(edge_type): nn.LeakyReLU() for edge_type in edge_types})
+        self.process_layer_dict = nn.ModuleDict(
+            {
+                '->'.join(edge_type): nn.Sequential(
+                    nn.BatchNorm1d(d_output * 2),
+                    nn.LeakyReLU(),
+                )
+                for edge_type in edge_types
+            }
+        )
+        self.dropout = nn.Dropout(dropout)
         self.semantic_attention_layer = nn.Sequential(
             nn.Linear(d_output * 2, d_output * 2),
             nn.Tanh(),
             nn.Linear(d_output * 2, 1, bias=False),
             nn.Softmax(dim=0)
         )
-        self.W_beta = nn.Parameter(torch.zeros([d_output, d_output]))
-        glorot(self.W_beta)
 
         self.leaky_relu = nn.LeakyReLU()
 
@@ -78,8 +85,10 @@ class GraphLayer(MessagePassing):
 
         edge_type_str = '->'.join(edge_type)
 
-        pi = self.leaky_relu(torch.einsum('nhd,nhd->nh', g, self.w_pi[edge_type_str]))
+        pi = torch.einsum('nhd,nhd->nh', g, self.w_pi[edge_type_str])
+        pi = self.leaky_relu(pi)
         alpha = softmax(pi, index=edge_index_i)
+        alpha = self.dropout(alpha)
 
         return (alpha.view(-1, self.num_heads, 1) * g_j).reshape(-1, self.d_output * 2)
 

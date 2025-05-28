@@ -1,5 +1,6 @@
 import copy
 import json
+import os
 import random
 from datetime import datetime
 from pathlib import Path
@@ -67,10 +68,18 @@ class Runner:
         self.__optimizer = Adam(self.__model.parameters(), lr=self.__args.lr)
 
     def __set_seed(self) -> None:
+        os.environ['PYTHONHASHSEED'] = str(self.__args.seed)
+
         random.seed(self.__args.seed)
+
         np.random.seed(self.__args.seed)
+
         torch.manual_seed(self.__args.seed)
         torch.cuda.manual_seed(self.__args.seed)
+        torch.cuda.manual_seed_all(self.__args.seed)
+
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
 
     def __get_train_and_valid_dataloader(self, train_dataset: HeteroICSDataset, valid_size: float) -> tuple[DataLoader, DataLoader]:
         dataset_size = int(len(train_dataset))
@@ -86,11 +95,9 @@ class Runner:
         train_subset = Subset(train_dataset, train_indices)
         valid_subset = Subset(train_dataset, valid_indices)
 
-        self.__set_seed()
-        train_dataloader = DataLoader(train_subset, batch_size=self.__args.batch_size, shuffle=True)
+        train_dataloader = DataLoader(train_subset, batch_size=self.__args.batch_size, shuffle=True, worker_init_fn=lambda _: self.__set_seed())
 
-        self.__set_seed()
-        valid_dataloader = DataLoader(valid_subset, batch_size=self.__args.batch_size, shuffle=False)
+        valid_dataloader = DataLoader(valid_subset, batch_size=self.__args.batch_size, shuffle=False, worker_init_fn=lambda _: self.__set_seed())
 
         return train_dataloader, valid_dataloader
 
@@ -115,10 +122,9 @@ class Runner:
             dtype=self.__args.dtype
         )
 
-        train_dataloader, valid_dataloader = self.__get_train_and_valid_dataloader(train_dataset, 0.2)
+        train_dataloader, valid_dataloader = self.__get_train_and_valid_dataloader(train_dataset, 0.1)
 
-        self.__set_seed()
-        test_dataloader = DataLoader(test_dataset, batch_size=self.__args.batch_size, shuffle=False)
+        test_dataloader = DataLoader(test_dataset, batch_size=self.__args.batch_size, shuffle=False, worker_init_fn=lambda _: self.__set_seed())
 
         return train_dataloader, valid_dataloader, test_dataloader
 
@@ -219,10 +225,12 @@ class Runner:
 
         self.__model.load_state_dict(torch.load(f'{model_name}', weights_only=True))
 
-        _, valid_result = self.__valid_epoch(self.__valid_dataloader)
         _, test_result = self.__valid_epoch(self.__test_dataloader)
-
-        precision, recall, fpr, fnr, f1 = get_metrics(test_result, valid_result if self.__args.report == 'label' else None)
+        if self.__args.report == 'label':
+            _, valid_result = self.__valid_epoch(self.__valid_dataloader)
+            precision, recall, fpr, fnr, f1 = get_metrics(test_result, valid_result)
+        else:
+            precision, recall, fpr, fnr, f1 = get_metrics(test_result)
 
         Logger.info(f' - F1 score: {f1:.4f}')
         Logger.info(f' - Precision: {precision:.4f}')

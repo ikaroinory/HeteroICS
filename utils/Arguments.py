@@ -57,7 +57,7 @@ class Arguments:
         parser.add_argument('--device', type=str, choices=['cuda', 'cpu'], default='cuda')
 
         parser.add_argument('-b', '--batch_size', type=int, default=512)
-        parser.add_argument('-e', '--epochs', type=int, default=1000)
+        parser.add_argument('-e', '--epochs', type=int, default=50)
 
         parser.add_argument('-sw', '--slide_window', type=int, default=10)
         parser.add_argument('-ss', '--slide_stride', type=int, default=1)
