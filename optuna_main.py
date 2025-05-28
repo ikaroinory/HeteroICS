@@ -66,11 +66,11 @@ def objective(trial: Trial) -> float:
                             }
                         ],
                         'rows': [
-                            {'metric': 'F1 score', 'value': f1},
-                            {'metric': 'Precision', 'value': precision},
-                            {'metric': 'Recall', 'value': recall},
-                            {'metric': 'FPR', 'value': fpr},
-                            {'metric': 'FNR', 'value': fnr}
+                            {'metric': 'F1 score', 'value': round(f1, 4)},
+                            {'metric': 'Precision', 'value': round(precision, 4)},
+                            {'metric': 'Recall', 'value': round(recall, 4)},
+                            {'metric': 'FPR', 'value': round(fpr, 4)},
+                            {'metric': 'FNR', 'value': round(fnr, 4)}
                         ],
                         'row_height': 'low',
                         'header_style': {
