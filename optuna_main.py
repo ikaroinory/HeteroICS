@@ -66,11 +66,56 @@ def objective(trial: Trial) -> float:
                             }
                         ],
                         'rows': [
-                            {'metric': 'F1 score', 'value': round(f1, 4)},
-                            {'metric': 'Precision', 'value': round(precision, 4)},
-                            {'metric': 'Recall', 'value': round(recall, 4)},
-                            {'metric': 'FPR', 'value': round(fpr, 4)},
-                            {'metric': 'FNR', 'value': round(fnr, 4)}
+                            {'metric': 'F1 score', 'value': f1, },
+                            {'metric': 'Precision', 'value': precision},
+                            {'metric': 'Recall', 'value': recall},
+                            {'metric': 'FPR', 'value': fpr},
+                            {'metric': 'FNR', 'value': fnr}
+                        ],
+                        'row_height': 'low',
+                        'header_style': {
+                            'background_style': 'grey',
+                            'bold': True,
+                            'lines': 1
+                        },
+                        'page_size': 5,
+                        'margin': '0px 0px 0px 0px'
+                    },
+                    {
+                        'tag': 'table',
+                        'columns': [
+                            {
+                                'data_type': 'text',
+                                'name': 'parameter',
+                                'display_name': 'Parameter',
+                                'horizontal_align': 'left',
+                                'vertical_align': 'center',
+                                'width': 'auto'
+                            },
+                            {
+                                'data_type': 'number',
+                                'name': 'value',
+                                'display_name': 'Value',
+                                'horizontal_align': 'right',
+                                'vertical_align': 'center',
+                                'width': 'auto',
+                                'format': {
+                                    'precision': 6
+                                }
+                            }
+                        ],
+                        'rows': [
+                            {'parameter': 'slide_window', 'value': runner.args.slide_window},
+                            {'parameter': 'k_ss', 'value': runner.args.k[('sensor', 'ss', 'sensor')]},
+                            {'parameter': 'k_sa', 'value': runner.args.k[('sensor', 'sa', 'actuator')]},
+                            {'parameter': 'k_as', 'value': runner.args.k[('actuator', 'as', 'sensor')]},
+                            {'parameter': 'k_aa', 'value': runner.args.k[('actuator', 'aa', 'actuator')]},
+                            {'parameter': 'd_hidden', 'value': runner.args.d_hidden},
+                            {'parameter': 'd_output_hidden', 'value': runner.args.d_output_hidden},
+                            {'parameter': 'num_heads', 'value': runner.args.num_heads},
+                            {'parameter': 'num_output_layer', 'value': runner.args.num_output_layer},
+                            {'parameter': 'lr', 'value': runner.args.lr},
+                            {'parameter': 'dropout', 'value': runner.args.dropout},
                         ],
                         'row_height': 'low',
                         'header_style': {

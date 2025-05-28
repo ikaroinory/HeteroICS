@@ -27,13 +27,13 @@ from .evaluate import get_metrics
 class Runner:
     def __init__(self, trail: Trial = None):
         self.__writer = SummaryWriter()
-        self.__args = OptunaArguments(trail) if trail is not None else Arguments()
+        self.args = OptunaArguments(trail) if trail is not None else Arguments()
 
         self.start_time = datetime.now().strftime('%Y%m%d_%H%M%S')
-        self.__log_path = Path(f'logs/{self.__args.dataset}/{self.start_time}.log')
-        self.__model_path = Path(f'saves/{self.__args.dataset}/{self.start_time}.pth')
+        self.__log_path = Path(f'logs/{self.args.dataset}/{self.start_time}.log')
+        self.__model_path = Path(f'saves/{self.args.dataset}/{self.start_time}.pth')
 
-        Logger.init(self.__log_path if self.__args.log else None)
+        Logger.init(self.__log_path if self.args.log else None)
 
         Logger.info('Setting seed...')
         self.__set_seed()
@@ -45,39 +45,39 @@ class Runner:
         self.__valid_dataloader: DataLoader = valid_dataloader
         self.__test_dataloader: DataLoader = test_dataloader
 
-        with open(f'data/processed/{self.__args.dataset}/node_indices.json', 'r') as f:
+        with open(f'data/processed/{self.args.dataset}/node_indices.json', 'r') as f:
             node_indices = json.load(f)
-        with open(f'data/processed/{self.__args.dataset}/edge_types.json', 'r') as f:
+        with open(f'data/processed/{self.args.dataset}/edge_types.json', 'r') as f:
             edge_types = json.load(f)
             edge_types: list[tuple[str, str, str]] = [tuple(edge_type) for edge_type in edge_types]
 
         Logger.info('Building model...')
         self.__model = HeteroICS(
-            sequence_len=self.__args.slide_window,
-            d_hidden=self.__args.d_hidden,
-            d_output_hidden=self.__args.d_output_hidden,
-            num_heads=self.__args.num_heads,
-            num_output_layer=self.__args.num_output_layer,
-            k_dict=self.__args.k_dict,
-            dropout=self.__args.dropout,
+            sequence_len=self.args.slide_window,
+            d_hidden=self.args.d_hidden,
+            d_output_hidden=self.args.d_output_hidden,
+            num_heads=self.args.num_heads,
+            num_output_layer=self.args.num_output_layer,
+            k_dict=self.args.k_dict,
+            dropout=self.args.dropout,
             node_indices=node_indices,
             edge_types=edge_types,
-            dtype=self.__args.dtype,
-            device=self.__args.device
+            dtype=self.args.dtype,
+            device=self.args.device
         )
         self.__loss = L1Loss()
-        self.__optimizer = Adam(self.__model.parameters(), lr=self.__args.lr)
+        self.__optimizer = Adam(self.__model.parameters(), lr=self.args.lr)
 
     def __set_seed(self) -> None:
-        os.environ['PYTHONHASHSEED'] = str(self.__args.seed)
+        os.environ['PYTHONHASHSEED'] = str(self.args.seed)
 
-        random.seed(self.__args.seed)
+        random.seed(self.args.seed)
 
-        np.random.seed(self.__args.seed)
+        np.random.seed(self.args.seed)
 
-        torch.manual_seed(self.__args.seed)
-        torch.cuda.manual_seed(self.__args.seed)
-        torch.cuda.manual_seed_all(self.__args.seed)
+        torch.manual_seed(self.args.seed)
+        torch.cuda.manual_seed(self.args.seed)
+        torch.cuda.manual_seed_all(self.args.seed)
 
         torch.backends.cudnn.benchmark = False
         torch.backends.cudnn.deterministic = True
@@ -96,36 +96,36 @@ class Runner:
         train_subset = Subset(train_dataset, train_indices)
         valid_subset = Subset(train_dataset, valid_indices)
 
-        train_dataloader = DataLoader(train_subset, batch_size=self.__args.batch_size, shuffle=True, worker_init_fn=lambda _: self.__set_seed())
+        train_dataloader = DataLoader(train_subset, batch_size=self.args.batch_size, shuffle=True, worker_init_fn=lambda _: self.__set_seed())
 
-        valid_dataloader = DataLoader(valid_subset, batch_size=self.__args.batch_size, shuffle=False, worker_init_fn=lambda _: self.__set_seed())
+        valid_dataloader = DataLoader(valid_subset, batch_size=self.args.batch_size, shuffle=False, worker_init_fn=lambda _: self.__set_seed())
 
         return train_dataloader, valid_dataloader
 
     def __get_dataloaders(self) -> tuple[DataLoader, DataLoader, DataLoader]:
-        train_df = pd.read_csv(f'data/processed/{self.__args.dataset}/train.csv')
+        train_df = pd.read_csv(f'data/processed/{self.args.dataset}/train.csv')
         train_np = train_df.to_numpy()
-        test_df = pd.read_csv(f'data/processed/{self.__args.dataset}/test.csv')
+        test_df = pd.read_csv(f'data/processed/{self.args.dataset}/test.csv')
         test_np = test_df.to_numpy()
 
         train_dataset = HeteroICSDataset(
             train_np,
-            self.__args.slide_window,
-            self.__args.slide_stride,
+            self.args.slide_window,
+            self.args.slide_stride,
             mode='train',
-            dtype=self.__args.dtype
+            dtype=self.args.dtype
         )
         test_dataset = HeteroICSDataset(
             test_np,
-            self.__args.slide_window,
-            self.__args.slide_stride,
+            self.args.slide_window,
+            self.args.slide_stride,
             mode='test',
-            dtype=self.__args.dtype
+            dtype=self.args.dtype
         )
 
         train_dataloader, valid_dataloader = self.__get_train_and_valid_dataloader(train_dataset, 0.1)
 
-        test_dataloader = DataLoader(test_dataset, batch_size=self.__args.batch_size, shuffle=False, worker_init_fn=lambda _: self.__set_seed())
+        test_dataloader = DataLoader(test_dataset, batch_size=self.args.batch_size, shuffle=False, worker_init_fn=lambda _: self.__set_seed())
 
         return train_dataloader, valid_dataloader, test_dataloader
 
@@ -134,8 +134,8 @@ class Runner:
 
         total_train_loss = 0
         for x, y, _ in tqdm(self.__train_dataloader):
-            x = x.to(self.__args.device)
-            y = y.to(self.__args.device)
+            x = x.to(self.args.device)
+            y = y.to(self.args.device)
 
             self.__optimizer.zero_grad()
 
@@ -159,9 +159,9 @@ class Runner:
 
         total_valid_loss = 0
         for x, y, label in tqdm(dataloader):
-            x = x.to(self.__args.device)
-            y = y.to(self.__args.device)
-            label = label.to(self.__args.device)
+            x = x.to(self.args.device)
+            y = y.to(self.args.device)
+            label = label.to(self.args.device)
 
             with torch.no_grad():
                 output = self.__model(x)
@@ -188,7 +188,7 @@ class Runner:
         best_model_weights = copy.deepcopy(self.__model.state_dict())
         patience_counter = 0
 
-        for epoch in tqdm(range(self.__args.epochs)):
+        for epoch in tqdm(range(self.args.epochs)):
             train_loss = self.__train_epoch()
             valid_loss, _ = self.__valid_epoch(self.__valid_dataloader)
 
@@ -211,7 +211,7 @@ class Runner:
 
             Logger.info(f' - Current best epoch: {best_epoch}')
 
-            if patience_counter >= self.__args.early_stop:
+            if patience_counter >= self.args.early_stop:
                 break
 
         self.__model_path.parent.mkdir(parents=True, exist_ok=True)
@@ -227,7 +227,7 @@ class Runner:
         self.__model.load_state_dict(torch.load(f'{model_name}', weights_only=True))
 
         _, test_result = self.__valid_epoch(self.__test_dataloader)
-        if self.__args.report == 'label':
+        if self.args.report == 'label':
             _, valid_result = self.__valid_epoch(self.__valid_dataloader)
             precision, recall, fpr, fnr, f1 = get_metrics(test_result, valid_result)
         else:
@@ -242,11 +242,11 @@ class Runner:
         return precision, recall, fpr, fnr, f1
 
     def run(self) -> tuple[float, float, float, float, float]:
-        if self.__args.model_path is None:
+        if self.args.model_path is None:
             self.__train()
             precision, recall, fpr, fnr, f1 = self.__evaluate(self.__model_path)
         else:
-            precision, recall, fpr, fnr, f1 = self.__evaluate(Path(self.__args.model_path))
+            precision, recall, fpr, fnr, f1 = self.__evaluate(Path(self.args.model_path))
 
         self.__writer.close()
         return precision, recall, fpr, fnr, f1
