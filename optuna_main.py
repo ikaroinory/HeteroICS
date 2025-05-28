@@ -23,17 +23,66 @@ def objective(trial: Trial) -> float:
             .app_secret('GSPcmc4qSw6t1CMbxOiUg2knwIuDJbzr')
             .build()
         )
-        temp = {
-            'text': '\n'.join(
-                [
-                    'New best result:',
-                    f' - F1: {f1}',
-                    f' - Precision: {precision}',
-                    f' - Recall: {recall}',
-                    f' - FPR: {fpr}',
-                    f' - FNR: {fnr}'
+        card_cfg = {
+            'schema': '2.0',
+            'config': {
+                'update_multi': True,
+                'style': {'text_size': {'normal_v2': {'default': 'normal', 'pc': 'normal', 'mobile': 'heading'}}}
+            },
+            'body': {
+                'direction': 'vertical',
+                'horizontal_spacing': '8px',
+                'vertical_spacing': '20px',
+                'horizontal_align': 'left',
+                'vertical_align': 'top',
+                'padding': '20px 20px 20px 20px',
+                'elements': [
+                    {
+                        'tag': 'markdown',
+                        'content': '## :PARTY: Best Trial :PARTY:',
+                        'text_align': 'center',
+                        'text_size': 'normal_v2',
+                        'margin': '0px 0px 0px 0px'
+                    },
+                    {
+                        'tag': 'table',
+                        'columns': [
+                            {
+                                'data_type': 'text',
+                                'name': 'metric',
+                                'display_name': 'Metric',
+                                'horizontal_align': 'left',
+                                'vertical_align': 'center',
+                                'width': 'auto'
+                            },
+                            {
+                                'data_type': 'number',
+                                'name': 'value',
+                                'display_name': 'Value',
+                                'horizontal_align': 'right',
+                                'vertical_align': 'center',
+                                'width': 'auto',
+                                'format': {'precision': 2}
+                            }
+                        ],
+                        'rows': [
+                            {'metric': 'F1 score', 'value': f1},
+                            {'metric': 'Precision', 'value': precision},
+                            {'metric': 'Recall', 'value': recall},
+                            {'metric': 'FPR', 'value': fpr},
+                            {'metric': 'FNR', 'value': fnr}
+                        ],
+                        'row_height': 'low',
+                        'header_style': {
+                            'background_style': 'grey',
+                            'bold': True,
+                            'lines': 1
+                        },
+                        'page_size': 5,
+                        'margin': '0px 0px 0px 0px'
+                    }
                 ]
-            )
+            }
         }
         request: CreateMessageRequest = (
             CreateMessageRequest.builder()
@@ -41,8 +90,8 @@ def objective(trial: Trial) -> float:
             .request_body(
                 CreateMessageRequestBody.builder()
                 .receive_id('ou_f4463d383724ed844c1cd2b4c938c32d')
-                .msg_type('text')
-                .content(json.dumps(temp))
+                .msg_type('interactive')
+                .content(json.dumps(card_cfg))
                 .build()
             )
             .build()
