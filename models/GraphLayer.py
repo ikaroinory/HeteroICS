@@ -2,6 +2,7 @@ from collections import defaultdict
 
 import torch
 from torch import Tensor, nn
+from torch.nn import functional as F
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import softmax
 
@@ -28,7 +29,7 @@ class GraphLayer(MessagePassing):
             {
                 '->'.join(edge_type): nn.Sequential(
                     nn.BatchNorm1d(d_output),
-                    nn.LeakyReLU(),
+                    nn.ReLU(),
                 )
                 for edge_type in edge_types
             }
@@ -70,7 +71,7 @@ class GraphLayer(MessagePassing):
 
             output = torch.sum(beta.expand(-1, -1, self.d_output) * z_all, dim=0)
 
-            z_dict[node_type] = output
+            z_dict[node_type] = F.relu(output)
 
         return z_dict
 
