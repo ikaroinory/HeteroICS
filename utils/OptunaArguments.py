@@ -36,7 +36,7 @@ class OptunaArguments:
         self.num_output_layer: int = trial.suggest_int('num_output_layer', 1, 10)  # best: 2
 
         self.lr: float = trial.suggest_float('lr', 1e-4, 1e-3, log=True)  # best: 0.001
-        self.dropout: float = trial.suggest_float('dropout', 0, 0.2)
+        self.dropout: float = 0
 
         self.early_stop: int = 20
 
