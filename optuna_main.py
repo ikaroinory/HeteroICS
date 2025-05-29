@@ -106,10 +106,10 @@ def objective(trial: Trial) -> float:
                         ],
                         'rows': [
                             {'parameter': 'slide_window', 'value': runner.args.slide_window},
-                            {'parameter': 'k_ss', 'value': runner.args.k[('sensor', 'ss', 'sensor')]},
-                            {'parameter': 'k_sa', 'value': runner.args.k[('sensor', 'sa', 'actuator')]},
-                            {'parameter': 'k_as', 'value': runner.args.k[('actuator', 'as', 'sensor')]},
-                            {'parameter': 'k_aa', 'value': runner.args.k[('actuator', 'aa', 'actuator')]},
+                            {'parameter': 'k_ss', 'value': runner.args.k_dict[('sensor', 'ss', 'sensor')]},
+                            {'parameter': 'k_sa', 'value': runner.args.k_dict[('sensor', 'sa', 'actuator')]},
+                            {'parameter': 'k_as', 'value': runner.args.k_dict[('actuator', 'as', 'sensor')]},
+                            {'parameter': 'k_aa', 'value': runner.args.k_dict[('actuator', 'aa', 'actuator')]},
                             {'parameter': 'd_hidden', 'value': runner.args.d_hidden},
                             {'parameter': 'd_output_hidden', 'value': runner.args.d_output_hidden},
                             {'parameter': 'num_heads', 'value': runner.args.num_heads},
@@ -148,9 +148,9 @@ def objective(trial: Trial) -> float:
 
 
 if __name__ == '__main__':
-    db_string = f'sqlite:///../optuna.db'
+    db_string = f'sqlite:///optuna.db'
     study = optuna.create_study(
-        study_name='Hetero - New Network - 0528', direction='maximize', storage=db_string, load_if_exists=True, sampler=samplers.RandomSampler()
+        study_name='Hetero - New Network - 0529', direction='maximize', storage=db_string, load_if_exists=True, sampler=samplers.RandomSampler()
     )
 
     study.optimize(objective, n_trials=1000)
