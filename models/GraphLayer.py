@@ -35,9 +35,9 @@ class GraphLayer(MessagePassing):
         )
         self.dropout = nn.Dropout(dropout)
         self.semantic_attention_layer = nn.Sequential(
-            nn.Linear(d_output * 2, d_output * 2),
+            nn.Linear(d_output, d_output),
             nn.Tanh(),
-            nn.Linear(d_output * 2, 1, bias=False),
+            nn.Linear(d_output, 1, bias=False),
             nn.LeakyReLU(),
             nn.Softmax(dim=0)
         )
@@ -64,12 +64,11 @@ class GraphLayer(MessagePassing):
         z_dict = {}
         for node_type, z_list in z_list_dict.items():
             z_all = torch.stack(tuple(z_list), dim=0)
-            x_all = z_all[:, :, self.d_output:]
 
             beta = self.semantic_attention_layer(z_all)
             beta = self.dropout(beta)
 
-            output = torch.sum(beta.expand(-1, -1, self.d_output) * x_all, dim=0)
+            output = torch.sum(beta.expand(-1, -1, self.d_output) * z_all, dim=0)
 
             z_dict[node_type] = output
 
@@ -92,7 +91,7 @@ class GraphLayer(MessagePassing):
         alpha = softmax(pi, index=edge_index_i)
         alpha = self.dropout(alpha)
 
-        return (alpha.view(-1, self.num_heads, 1) * g_j).reshape(-1, self.d_output * 2)
+        return (alpha.view(-1, self.num_heads, 1) * x_j_heads).reshape(-1, self.d_output)
 
     def __call__(self, x_dict: dict[str, Tensor], v_dict: dict[str, Tensor], edge_index_dict: dict[tuple[str, str, str], Tensor]) -> dict[str, Tensor]:
         return super().__call__(x_dict, v_dict, edge_index_dict)
