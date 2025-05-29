@@ -27,7 +27,7 @@ class GraphLayer(MessagePassing):
         self.process_layer_dict = nn.ModuleDict(
             {
                 '->'.join(edge_type): nn.Sequential(
-                    nn.BatchNorm1d(d_output * 2),
+                    nn.BatchNorm1d(d_output),
                     nn.LeakyReLU(),
                 )
                 for edge_type in edge_types
