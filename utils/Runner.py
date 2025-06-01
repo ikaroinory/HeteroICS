@@ -207,7 +207,7 @@ class Runner:
 
                 output = torch.zeros([x.shape[0], x.shape[1]], dtype=self.args.dtype, device=self.args.device)
                 output[:, self.__model.node_indices['sensor']] = sensor_output
-                output[:, self.__model.node_indices['actuator']] = actuator_output.argmax(dim=-1)
+                output[:, self.__model.node_indices['actuator']] = actuator_output.argmax(dim=-1).to(self.args.dtype)
 
                 loss = self.__sensor_loss(output, y)
 
