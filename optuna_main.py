@@ -114,7 +114,7 @@ def objective(trial: Trial) -> float:
                             {'parameter': 'd_output_hidden', 'value': runner.args.d_output_hidden},
                             {'parameter': 'num_heads', 'value': runner.args.num_heads},
                             {'parameter': 'num_output_layer', 'value': runner.args.num_output_layer},
-                            {'parameter': 'lr', 'value': runner.args.lr}
+                            {'parameter': 'lr', 'value': runner.args.share_lr}
                         ],
                         'row_height': 'low',
                         'header_style': {

@@ -34,7 +34,9 @@ class OptunaArguments:
         self.num_heads: int = trial.suggest_categorical('num_heads', [1, 2, 4, 8])  # best: 1
         self.num_output_layer: int = trial.suggest_int('num_output_layer', 1, 10)  # best: 2
 
-        self.lr: float = trial.suggest_float('lr', 1e-4, 1e-2, log=True)  # best: 0.001
+        self.share_lr: float = trial.suggest_float('share_lr', 1e-4, 1e-2, log=True)  # best: 0.001
+        self.sensor_lr: float = trial.suggest_float('sensor_lr', 1e-4, 1e-2, log=True)
+        self.actuator_lr: float = trial.suggest_float('actuator_lr', 1e-4, 1e-2, log=True)
         self.dropout: float = 0
 
         self.early_stop: int = 20

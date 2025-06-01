@@ -80,9 +80,9 @@ class Runner:
         self.__sensor_loss = L1Loss()
         self.__actuator_loss = CrossEntropyLoss()
 
-        self.__sensor_optimizer = Adam(self.__parameters_dict['sensor'], lr=self.args.lr)
-        self.__actuator_optimizer = Adam(self.__parameters_dict['actuator'], lr=self.args.lr)
-        self.__share_optimizer = Adam(self.__parameters_dict['share'], lr=self.args.lr)
+        self.__sensor_optimizer = Adam(self.__parameters_dict['sensor'], lr=self.args.sensor_lr)
+        self.__actuator_optimizer = Adam(self.__parameters_dict['actuator'], lr=self.args.actuator_lr)
+        self.__share_optimizer = Adam(self.__parameters_dict['share'], lr=self.args.share_lr)
 
     def __set_seed(self) -> None:
         random.seed(self.args.seed)
