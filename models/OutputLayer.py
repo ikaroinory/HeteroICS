@@ -44,8 +44,6 @@ class OutputLayer(nn.Module):
 
             temp_output = output_linear(mlp_output[:, indices, :])
             temp_output = F.softmax(temp_output, dim=-1)
-            print(output[:, indices, :].dtype)
-            print(temp_output.argmax(dim=-1, keepdim=True).to(self.dtype).dtype)
 
             output[:, indices, :] = temp_output.argmax(dim=-1, keepdim=True).to(self.dtype)
 
