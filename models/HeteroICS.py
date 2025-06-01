@@ -1,6 +1,7 @@
 import torch
 from torch import Tensor, nn
 
+from enums import NodeConfig
 from .GraphLayer import GraphLayer
 from .OutputLayer import OutputLayer
 
@@ -16,12 +17,14 @@ class HeteroICS(nn.Module):
         k_dict: dict[tuple[str, str, str], int],
         dropout: float = 0,
         *,
-        node_indices: dict[str, list[int]],
+        node_config: dict[str, NodeConfig],
         edge_types: list[tuple[str, str, str]],
         dtype=None,
         device=None
     ):
         super().__init__()
+
+        node_indices = {k: v['index'] for k, v in node_config.items()}
 
         self.d_hidden = d_hidden
         self.num_nodes = sum(len(v) for v in node_indices.values())
@@ -46,7 +49,14 @@ class HeteroICS(nn.Module):
             nn.ReLU(),
             nn.Dropout(dropout)
         )
-        self.output_layer = OutputLayer(d_input=d_hidden, d_hidden=d_output_hidden, num_layers=num_output_layer)
+        self.output_layer = OutputLayer(
+            d_input=d_hidden,
+            d_hidden=d_output_hidden,
+            num_layers=num_output_layer,
+            node_config=node_config,
+            dtype=dtype,
+            device=device
+        )
 
         self.dtype = dtype
         self.device = device
@@ -90,7 +100,7 @@ class HeteroICS(nn.Module):
         return edges
 
     def forward(self, x: Tensor) -> Tensor:
-        batch_size, _, _ = x.shape
+        batch_size, num_nodes, _ = x.shape
 
         v = self.embedding_layer(torch.arange(self.num_nodes).to(self.device))  # [num_nodes, d_hidden]
 
@@ -126,7 +136,7 @@ class HeteroICS(nn.Module):
             p_flatten[indices] = z_flatten[indices] * v_proj_dict[node_type]
         p_flatten = self.process_layer(p_flatten)
 
-        output = self.output_layer(p_flatten).reshape(batch_size, -1)
+        output = self.output_layer(p_flatten.reshape(batch_size, num_nodes, -1)).squeeze()
 
         return output
 

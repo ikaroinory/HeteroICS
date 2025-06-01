@@ -71,9 +71,22 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
     with open(node_indices_path, 'w') as file:
         node_indices = {
             'sensor': [data_df.columns.get_loc(sensor) for sensor in sensor_names],
-            'actuator': [data_df.columns.get_loc(actuator) for actuator in actuator_names],
+            'actuator': [data_df.columns.get_loc(actuator) for actuator in actuator_names]
         }
         file.write(json.dumps(node_indices, indent=4))
+    with open(_processed_data_path.parent / 'node_config.json', 'w') as file:
+        node_config = {
+            'sensor': {
+                'value_type': 'float',
+                'index': [data_df.columns.get_loc(sensor) for sensor in sensor_names]
+            },
+            'actuator': {
+                'value_type': 'enum',
+                'value_list': [0, 1, 2],
+                'index': [data_df.columns.get_loc(actuator) for actuator in actuator_names]
+            }
+        }
+        file.write(json.dumps(node_config, indent=2))
     Logger.info(f'Save to {node_indices_path} .')
 
     # Scale data using MinMaxScaler
@@ -106,8 +119,8 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
     data_df.to_csv(processed_data_path, index=False)
     Logger.info(f'Saved to {processed_data_path} .')
 
-    # Save edge types
-    Logger.info('Saving edge types...')
+    # Save edge enums
+    Logger.info('Saving edge enums...')
     with open(_processed_data_path.parent / 'edge_types.json', 'w') as file:
         edge_types = [
             ['sensor', 'ss', 'sensor'],
@@ -116,7 +129,7 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
             ['actuator', 'aa', 'actuator']
         ]
         file.write(json.dumps(edge_types, indent=4))
-    Logger.info('Saved edge types.')
+    Logger.info('Saved edge enums.')
 
     return original_data_df
 

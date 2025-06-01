@@ -18,6 +18,7 @@ from tqdm import tqdm
 
 from datasets import HeteroICSDataset
 from models import HeteroICS
+from enums import NodeConfig
 from .Arguments import Arguments
 from .Logger import Logger
 from .OptunaArguments import OptunaArguments
@@ -45,8 +46,8 @@ class Runner:
         self.__valid_dataloader: DataLoader = valid_dataloader
         self.__test_dataloader: DataLoader = test_dataloader
 
-        with open(f'data/processed/{self.args.dataset}/node_indices.json', 'r') as f:
-            node_indices = json.load(f)
+        with open(f'data/processed/{self.args.dataset}/node_config.json', 'r') as f:
+            node_config: dict[str, NodeConfig] = json.load(f)
         with open(f'data/processed/{self.args.dataset}/edge_types.json', 'r') as f:
             edge_types = json.load(f)
             edge_types: list[tuple[str, str, str]] = [tuple(edge_type) for edge_type in edge_types]
@@ -60,7 +61,7 @@ class Runner:
             num_output_layer=self.args.num_output_layer,
             k_dict=self.args.k_dict,
             dropout=self.args.dropout,
-            node_indices=node_indices,
+            node_config=node_config,
             edge_types=edge_types,
             dtype=self.args.dtype,
             device=self.args.device
