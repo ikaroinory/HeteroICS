@@ -49,14 +49,8 @@ class HeteroICS(nn.Module):
             nn.ReLU(),
             nn.Dropout(dropout)
         )
-        self.output_layer = OutputLayer(
-            d_input=d_hidden,
-            d_hidden=d_output_hidden,
-            num_layers=num_output_layer,
-            node_config=node_config,
-            dtype=dtype,
-            device=device
-        )
+        self.sensor_output_layer = OutputLayer(d_input=d_hidden, d_hidden=d_output_hidden, d_output=1, num_layers=num_output_layer)
+        self.actuator_output_layer = OutputLayer(d_input=d_hidden, d_hidden=d_output_hidden, d_output=3, num_layers=num_output_layer)
 
         self.dtype = dtype
         self.device = device
@@ -99,7 +93,7 @@ class HeteroICS(nn.Module):
 
         return edges
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x: Tensor) -> tuple[Tensor, Tensor]:
         batch_size, num_nodes, _ = x.shape
 
         v = self.embedding_layer(torch.arange(self.num_nodes).to(self.device))  # [num_nodes, d_hidden]
@@ -136,9 +130,11 @@ class HeteroICS(nn.Module):
             p_flatten[indices] = z_flatten[indices] * v_proj_dict[node_type]
         p_flatten = self.process_layer(p_flatten)
 
-        output = self.output_layer(p_flatten.reshape(batch_size, num_nodes, -1)).squeeze()
+        p = p_flatten.reshape(batch_size, num_nodes, -1)
+        sensor_output = self.sensor_output_layer(p[:, self.node_indices['sensor'], :])
+        actuator_output = self.actuator_output_layer(p[:, self.node_indices['actuator'], :])
 
-        return output
+        return sensor_output, actuator_output
 
-    def __call__(self, x: Tensor) -> Tensor:
+    def __call__(self, x: Tensor) -> tuple[Tensor, Tensor]:
         return self.forward(x)

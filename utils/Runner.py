@@ -1,7 +1,7 @@
 import copy
 import json
-import os
 import random
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
@@ -10,17 +10,19 @@ import pandas as pd
 import torch
 from optuna import Trial
 from torch import Tensor
-from torch.nn import L1Loss
+from torch.autograd import Variable
+from torch.nn import CrossEntropyLoss, L1Loss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, Subset
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from datasets import HeteroICSDataset
-from models import HeteroICS
 from enums import NodeConfig
+from models import HeteroICS
 from .Arguments import Arguments
 from .Logger import Logger
+from .MinNormSolver import MinNormSolver
 from .OptunaArguments import OptunaArguments
 from .evaluate import get_metrics
 
@@ -66,12 +68,23 @@ class Runner:
             dtype=self.args.dtype,
             device=self.args.device
         )
-        self.__loss = L1Loss()
-        self.__optimizer = Adam(self.__model.parameters(), lr=self.args.lr)
+        self.__parameters_dict = defaultdict(list)
+        for name, parameters in self.__model.named_parameters():
+            if 'sensor' in name and 'output' in name:
+                self.__parameters_dict['sensor'].append(parameters)
+            elif 'actuator' in name and 'output' in name:
+                self.__parameters_dict['actuator'].append(parameters)
+            else:
+                self.__parameters_dict['share'].append(parameters)
+
+        self.__sensor_loss = L1Loss()
+        self.__actuator_loss = CrossEntropyLoss()
+
+        self.__sensor_optimizer = Adam(self.__parameters_dict['sensor'], lr=self.args.lr)
+        self.__actuator_optimizer = Adam(self.__parameters_dict['actuator'], lr=self.args.lr)
+        self.__share_optimizer = Adam(self.__parameters_dict['share'], lr=self.args.lr)
 
     def __set_seed(self) -> None:
-        os.environ['PYTHONHASHSEED'] = str(self.args.seed)
-
         random.seed(self.args.seed)
 
         np.random.seed(self.args.seed)
@@ -138,14 +151,39 @@ class Runner:
             x = x.to(self.args.device)
             y = y.to(self.args.device)
 
-            self.__optimizer.zero_grad()
+            grads = {'sensor': [], 'actuator': []}
 
-            output = self.__model(x)
+            self.__share_optimizer.zero_grad()
 
-            loss = self.__loss(output, y)
+            sensor_output, actuator_output = self.__model(x)
 
+            sensor_loss = self.__sensor_loss(sensor_output, y[:, self.__model.node_indices['sensor']])
+            sensor_loss.backward(retain_graph=True)
+            for name, parameters in self.__model.named_parameters():
+                if parameters.grad is None:
+                    continue
+                if 'sensor' in name and 'output' in name:
+                    grads['sensor'].append(Variable(parameters.grad.data.clone(), requires_grad=True))
+
+            actuator_loss = self.__actuator_loss(
+                actuator_output.reshape(-1, actuator_output.shape[-1]),
+                y[:, self.__model.node_indices['actuator']].long().reshape(-1)
+            )
+            actuator_loss.backward(retain_graph=True)
+            for name, parameters in self.__model.named_parameters():
+                if parameters.grad is None:
+                    continue
+                if 'actuator' in name and 'output' in name:
+                    grads['actuator'].append(Variable(parameters.grad.data.clone(), requires_grad=True))
+
+            alpha, _ = MinNormSolver.find_min_norm_element(list(grads.values()))
+
+            loss = alpha[0] * sensor_loss + alpha[1] * actuator_loss
             loss.backward()
-            self.__optimizer.step()
+
+            self.__sensor_optimizer.step()
+            self.__actuator_optimizer.step()
+            self.__share_optimizer.step()
 
             total_train_loss += loss.item() * x.shape[0]
 
@@ -165,9 +203,13 @@ class Runner:
             label = label.to(self.args.device)
 
             with torch.no_grad():
-                output = self.__model(x)
+                sensor_output, actuator_output = self.__model(x)
 
-                loss = self.__loss(output, y)
+                output = torch.zeros([x.shape[0], x.shape[1]], dtype=self.args.dtype, device=self.args.device)
+                output[:, self.__model.node_indices['sensor']] = sensor_output
+                output[:, self.__model.node_indices['actuator']] = actuator_output.argmax(dim=-1)
+
+                loss = self.__sensor_loss(output, y)
 
                 total_valid_loss += loss.item() * x.shape[0]
 
