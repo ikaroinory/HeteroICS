@@ -109,12 +109,13 @@ def objective(trial: Trial) -> float:
                             {'parameter': 'k_ss', 'value': runner.args.k_dict[('sensor', 'ss', 'sensor')]},
                             {'parameter': 'k_sa', 'value': runner.args.k_dict[('sensor', 'sa', 'actuator')]},
                             {'parameter': 'k_as', 'value': runner.args.k_dict[('actuator', 'as', 'sensor')]},
-                            {'parameter': 'k_aa', 'value': runner.args.k_dict[('actuator', 'aa', 'actuator')]},
                             {'parameter': 'd_hidden', 'value': runner.args.d_hidden},
                             {'parameter': 'd_output_hidden', 'value': runner.args.d_output_hidden},
                             {'parameter': 'num_heads', 'value': runner.args.num_heads},
                             {'parameter': 'num_output_layer', 'value': runner.args.num_output_layer},
-                            {'parameter': 'lr', 'value': runner.args.share_lr}
+                            {'parameter': 'share_lr', 'value': runner.args.share_lr},
+                            {'parameter': 'sensor_lr', 'value': runner.args.sensor_lr},
+                            {'parameter': 'actuator_lr', 'value': runner.args.actuator_lr}
                         ],
                         'row_height': 'low',
                         'header_style': {
