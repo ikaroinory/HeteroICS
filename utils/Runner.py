@@ -233,19 +233,17 @@ class Runner:
 
         for epoch in tqdm(range(self.args.epochs)):
             train_loss = self.__train_epoch()
-            valid_loss, _ = self.__valid_epoch(self.__valid_dataloader)
+            _, _ = self.__valid_epoch(self.__valid_dataloader)
 
             self.__writer.add_scalar('Loss/train', train_loss, epoch)
-            self.__writer.add_scalar('Loss/valid', valid_loss, epoch)
 
             Logger.info(f'Epoch {epoch + 1}:')
             Logger.info(f' - Train loss: {train_loss:.8f}')
-            Logger.info(f' - Valid loss: {valid_loss:.8f}')
 
-            if valid_loss < best_valid_loss:
+            if train_loss < best_valid_loss:
                 best_epoch = epoch + 1
 
-                best_valid_loss = valid_loss
+                best_valid_loss = train_loss
 
                 best_model_weights = copy.deepcopy(self.__model.state_dict())
                 patience_counter = 0
