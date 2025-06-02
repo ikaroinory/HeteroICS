@@ -17,7 +17,7 @@ class OptunaArguments:
         self.device = 'cuda'
 
         self.batch_size: int = 32
-        self.epochs: int = 100
+        self.epochs: int = 50
 
         self.slide_window: int = trial.suggest_int('slide_window', 5, 20)
         self.slide_stride: int = 1
