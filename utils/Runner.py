@@ -12,7 +12,7 @@ from optuna import Trial
 from torch import Tensor
 from torch.autograd import Variable
 from torch.nn import CrossEntropyLoss, L1Loss
-from torch.optim import Adam
+from torch.optim import SGD
 from torch.utils.data import DataLoader, Subset
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
@@ -80,9 +80,9 @@ class Runner:
         self.__sensor_loss = L1Loss()
         self.__actuator_loss = CrossEntropyLoss()
 
-        self.__sensor_optimizer = Adam(self.__parameters_dict['sensor'], lr=self.args.sensor_lr)
-        self.__actuator_optimizer = Adam(self.__parameters_dict['actuator'], lr=self.args.actuator_lr)
-        self.__share_optimizer = Adam(self.__parameters_dict['share'], lr=self.args.share_lr)
+        self.__sensor_optimizer = SGD(self.__parameters_dict['sensor'], lr=self.args.sensor_lr, momentum=0.9)
+        self.__actuator_optimizer = SGD(self.__parameters_dict['actuator'], lr=self.args.actuator_lr, momentum=0.9)
+        self.__share_optimizer = SGD(self.__parameters_dict['share'], lr=self.args.share_lr, momentum=0.9)
 
     def __set_seed(self) -> None:
         random.seed(self.args.seed)
