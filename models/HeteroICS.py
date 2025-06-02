@@ -35,7 +35,8 @@ class HeteroICS(nn.Module):
         self.k_dict = k_dict
 
         self.embedding_layer = nn.Sequential(
-            nn.Embedding(num_embeddings=self.num_nodes, embedding_dim=d_hidden)
+            nn.Embedding(num_embeddings=self.num_nodes, embedding_dim=d_hidden),
+            nn.BatchNorm1d(d_hidden)
         )
         self.x_proj_layer_dict = nn.ModuleDict({
             node_type: nn.Sequential(

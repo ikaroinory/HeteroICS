@@ -16,7 +16,7 @@ class OptunaArguments:
         self.dtype = torch.float32
         self.device = 'cuda'
 
-        self.batch_size: int = 32
+        self.batch_size: int = 64
         self.epochs: int = 50
 
         self.slide_window: int = trial.suggest_int('slide_window', 5, 20)
@@ -28,13 +28,13 @@ class OptunaArguments:
             ('actuator', 'as', 'sensor'): trial.suggest_int('k_as', 1, 10)
         }
 
-        self.d_hidden: int = trial.suggest_categorical('d_hidden', [64, 128, 256, 512])  # best: 256
-        self.d_output_hidden: int = trial.suggest_int('d_output_hidden', 128, 1024, log=True)  # best: 128
+        self.d_hidden: int = trial.suggest_categorical('d_hidden', [64, 128, 256, 512])
+        self.d_output_hidden: int = trial.suggest_int('d_output_hidden', 128, 1024, log=True)
 
-        self.num_heads: int = trial.suggest_categorical('num_heads', [1, 2, 4, 8])  # best: 1
+        self.num_heads: int = 8
         self.num_output_layer: int = trial.suggest_int('num_output_layer', 1, 10)  # best: 2
 
-        self.share_lr: float = trial.suggest_float('share_lr', 1e-4, 1e-2, log=True)  # best: 0.001
+        self.share_lr: float = trial.suggest_float('share_lr', 1e-4, 1e-2, log=True)
         self.sensor_lr: float = trial.suggest_float('sensor_lr', 1e-4, 1e-2, log=True)
         self.actuator_lr: float = trial.suggest_float('actuator_lr', 1e-4, 1e-2, log=True)
         self.dropout: float = 0

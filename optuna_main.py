@@ -3,7 +3,7 @@ import json
 import lark_oapi
 import optuna
 from lark_oapi.api.im.v1 import CreateMessageRequest, CreateMessageRequestBody, CreateMessageResponse
-from optuna import Trial, samplers
+from optuna import Trial
 
 from utils import Runner
 
@@ -111,7 +111,6 @@ def objective(trial: Trial) -> float:
                             {'parameter': 'k_as', 'value': runner.args.k_dict[('actuator', 'as', 'sensor')]},
                             {'parameter': 'd_hidden', 'value': runner.args.d_hidden},
                             {'parameter': 'd_output_hidden', 'value': runner.args.d_output_hidden},
-                            {'parameter': 'num_heads', 'value': runner.args.num_heads},
                             {'parameter': 'num_output_layer', 'value': runner.args.num_output_layer},
                             {'parameter': 'share_lr', 'value': runner.args.share_lr},
                             {'parameter': 'sensor_lr', 'value': runner.args.sensor_lr},
@@ -149,9 +148,7 @@ def objective(trial: Trial) -> float:
 
 if __name__ == '__main__':
     db_string = f'sqlite:///../optuna.db'
-    study = optuna.create_study(
-        study_name='Hetero - MTL - 0601', direction='maximize', storage=db_string, load_if_exists=True, sampler=samplers.RandomSampler()
-    )
+    study = optuna.create_study(study_name='Hetero - MTL - 0603', direction='maximize', storage=db_string, load_if_exists=True)
 
     study.optimize(objective, n_trials=1000)
 
