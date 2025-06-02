@@ -13,5 +13,10 @@
         "actuator",
         "as",
         "sensor"
+    ],
+    [
+        "actuator",
+        "aa",
+        "actuator"
     ]
 ]

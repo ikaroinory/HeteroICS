@@ -25,7 +25,8 @@ class OptunaArguments:
         self.k_dict: dict[tuple[str, str, str], int] = {
             ('sensor', 'ss', 'sensor'): trial.suggest_int('k_ss', 1, 10),
             ('sensor', 'sa', 'actuator'): trial.suggest_int('k_sa', 1, 10),
-            ('actuator', 'as', 'sensor'): trial.suggest_int('k_as', 1, 10)
+            ('actuator', 'as', 'sensor'): trial.suggest_int('k_as', 1, 10),
+            ('actuator', 'aa', 'actuator'): trial.suggest_int('k_as', 1, 10),
         }
 
         self.d_hidden: int = trial.suggest_categorical('d_hidden', [64, 128, 256, 512])
