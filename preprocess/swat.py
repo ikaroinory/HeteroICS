@@ -73,7 +73,7 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
             'sensor': [data_df.columns.get_loc(sensor) for sensor in sensor_names],
             'actuator': [data_df.columns.get_loc(actuator) for actuator in actuator_names]
         }
-        file.write(json.dumps(node_indices, indent=4))
+        file.write(json.dumps(node_indices, indent=2))
     with open(_processed_data_path.parent / 'node_config.json', 'w') as file:
         node_config = {
             'sensor': {
@@ -128,13 +128,13 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
             ['actuator', 'as', 'sensor'],
             ['actuator', 'aa', 'actuator']
         ]
-        file.write(json.dumps(edge_types, indent=4))
+        file.write(json.dumps(edge_types, indent=2))
     Logger.info('Saved edge enums.')
 
     return original_data_df
 
 
-def preprocess_swat(original_data_path: tuple[str, str], processed_data_path: tuple[str, str], sample_len: int = 10) -> None:
+def preprocess_swat(original_data_path: tuple[str, str], processed_data_path: tuple[str, str], sample_len: int = 11) -> None:
     original_train_data_path, original_test_data_path = original_data_path
     processed_train_data_path, processed_test_data_path = processed_data_path
 
