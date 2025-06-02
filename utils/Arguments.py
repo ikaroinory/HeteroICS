@@ -35,7 +35,9 @@ class Arguments:
         self.num_heads: int = args.num_heads
         self.num_output_layer: int = args.num_output_layer
 
-        self.lr: float = args.lr
+        self.share_lr: float = args.share_lr
+        self.sensor_lr: float = args.sensor_lr
+        self.actuator_lr: float = args.actuator_lr
         self.dropout: float = args.dropout
 
         self.early_stop: int = args.early_stop
@@ -69,7 +71,9 @@ class Arguments:
         parser.add_argument('--num_heads', type=int, default=1)
         parser.add_argument('--num_output_layer', type=int, default=2)
 
-        parser.add_argument('--lr', type=float, default=0.0002)
+        parser.add_argument('--share_lr', type=float, default=0.0002)
+        parser.add_argument('--sensor_lr', type=float, default=0.0002)
+        parser.add_argument('--actuator_lr', type=float, default=0.0002)
 
         parser.add_argument('--early_stop', type=int, default=20)
         parser.add_argument('--dropout', type=float, default=0)
