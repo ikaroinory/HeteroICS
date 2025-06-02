@@ -49,7 +49,7 @@ class Runner:
         self.__test_dataloader: DataLoader = test_dataloader
 
         with open(f'data/processed/{self.args.dataset}/node_config.json', 'r') as f:
-            node_config: dict[str, NodeConfig] = json.load(f)
+            self.node_config: dict[str, NodeConfig] = json.load(f)
         with open(f'data/processed/{self.args.dataset}/edge_types.json', 'r') as f:
             edge_types = json.load(f)
             edge_types: list[tuple[str, str, str]] = [tuple(edge_type) for edge_type in edge_types]
@@ -63,7 +63,7 @@ class Runner:
             num_output_layer=self.args.num_output_layer,
             k_dict=self.args.k_dict,
             dropout=self.args.dropout,
-            node_config=node_config,
+            node_config=self.node_config,
             edge_types=edge_types,
             dtype=self.args.dtype,
             device=self.args.device
@@ -119,12 +119,6 @@ class Runner:
     def __get_dataloaders(self) -> tuple[DataLoader, DataLoader, DataLoader]:
         train_df = pd.read_csv(f'data/processed/{self.args.dataset}/train.csv')
         train_np = train_df.to_numpy()
-        # for i in [2, 3, 4, 9, 10, 11, 12, 13, 14, 15, 19, 20, 21, 22, 23, 24, 29, 30, 31, 32, 33, 42, 43, 48, 49, 50]:
-        #     unique_elements, counts = np.unique(train_np[:, i], return_counts=True)
-        #     for elem, count in zip(unique_elements, counts):
-        #         print(f"元素 {elem} 出现了 {count} 次")
-        #     print()
-        # exit(0)
         test_df = pd.read_csv(f'data/processed/{self.args.dataset}/test.csv')
         test_np = test_df.to_numpy()
 
@@ -211,9 +205,10 @@ class Runner:
             with torch.no_grad():
                 sensor_output, actuator_output = self.__model(x)
 
+                value_list = torch.tensor(self.node_config['actuator']['value_list'], dtype=self.args.dtype, device=self.args.device)
                 output = torch.zeros([x.shape[0], x.shape[1]], dtype=self.args.dtype, device=self.args.device)
                 output[:, self.__model.node_indices['sensor']] = sensor_output
-                output[:, self.__model.node_indices['actuator']] = actuator_output.argmax(dim=-1).to(self.args.dtype)
+                output[:, self.__model.node_indices['actuator']] = value_list[actuator_output.argmax(dim=-1)]
 
                 loss = self.__sensor_loss(output, y)
 
