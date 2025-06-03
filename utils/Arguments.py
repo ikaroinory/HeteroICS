@@ -26,7 +26,8 @@ class Arguments:
         self.k_dict: dict[tuple[str, str, str], int] = {
             ('sensor', 'ss', 'sensor'): args.k[0],
             ('sensor', 'sa', 'actuator'): args.k[1],
-            ('actuator', 'as', 'sensor'): args.k[2]
+            ('actuator', 'as', 'sensor'): args.k[2],
+            ('actuator', 'aa', 'actuator'): args.k[3]
         }
 
         self.d_hidden: int = args.d_hidden
