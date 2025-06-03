@@ -109,6 +109,7 @@ def objective(trial: Trial) -> float:
                             {'parameter': 'k_ss', 'value': runner.args.k_dict[('sensor', 'ss', 'sensor')]},
                             {'parameter': 'k_sa', 'value': runner.args.k_dict[('sensor', 'sa', 'actuator')]},
                             {'parameter': 'k_as', 'value': runner.args.k_dict[('actuator', 'as', 'sensor')]},
+                            {'parameter': 'k_aa', 'value': runner.args.k_dict[('actuator', 'aa', 'actuator')]},
                             {'parameter': 'd_hidden', 'value': runner.args.d_hidden},
                             {'parameter': 'd_output_hidden', 'value': runner.args.d_output_hidden},
                             {'parameter': 'num_output_layer', 'value': runner.args.num_output_layer},
