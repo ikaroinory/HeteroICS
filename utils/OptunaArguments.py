@@ -40,6 +40,6 @@ class OptunaArguments:
         self.actuator_lr: float = trial.suggest_float('actuator_lr', 1e-4, 1e-2, log=True)
         self.dropout: float = 0
 
-        self.early_stop: int = 20
+        self.early_stop: int = 50
 
         self.log: bool = True
