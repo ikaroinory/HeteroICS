@@ -55,7 +55,7 @@ class HeteroICS(nn.Module):
         self.graph_layer = GraphLayer(sequence_len, d_hidden, num_heads, dropout, node_indices=node_indices, edge_types=edge_types)
         self.graph_output_process_layer = nn.Sequential(
             nn.BatchNorm1d(d_hidden),
-            nn.ReLU(),
+            nn.ReLU()
         )
         self.process_layer = nn.Sequential(
             nn.BatchNorm1d(d_hidden),

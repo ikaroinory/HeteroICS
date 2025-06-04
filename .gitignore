@@ -3,3 +3,7 @@
 .idea
 
 __pycache__
+
+logs
+runs
+saves

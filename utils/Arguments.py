@@ -60,7 +60,7 @@ class Arguments:
         parser.add_argument('--device', type=str, choices=['cuda', 'cpu'], default='cuda')
 
         parser.add_argument('-b', '--batch_size', type=int, default=512)
-        parser.add_argument('-e', '--epochs', type=int, default=100)
+        parser.add_argument('-e', '--epochs', type=int, default=50)
 
         parser.add_argument('-sw', '--slide_window', type=int, default=10)
         parser.add_argument('-ss', '--slide_stride', type=int, default=1)
@@ -69,7 +69,7 @@ class Arguments:
         parser.add_argument('--d_hidden', type=int, default=256)
         parser.add_argument('--d_output_hidden', type=int, default=132)
 
-        parser.add_argument('--num_heads', type=int, default=1)
+        parser.add_argument('--num_heads', type=int, default=8)
         parser.add_argument('--num_output_layer', type=int, default=2)
 
         parser.add_argument('--share_lr', type=float, default=0.0002)
