@@ -8,10 +8,9 @@ from torch import Tensor
 def get_total_error_score(result: tuple[Tensor, Tensor, Tensor], smooth_window: int, epsilon: float = 1e-2) -> Tensor:
     predict_result, actual_result, _ = result
 
-    delta = torch.abs(predict_result - actual_result)
-    median, _ = torch.median(delta, dim=0)
-    iqr = torch.quantile(delta, 0.75, dim=0) - torch.quantile(delta, 0.25, dim=0)
-    score = (delta - median) / (torch.abs(iqr) + epsilon)  # [*, num_nodes]
+    delta = (predict_result - actual_result).abs()
+    iqr = delta.quantile(0.75, dim=0) - delta.quantile(0.25, dim=0)
+    score = (delta - delta.quantile(0.5, dim=0)) / (iqr + epsilon)  # [*, num_nodes]
 
     if smooth_window > 0:
         score = score.unfold(0, smooth_window, 1).mean(-1)
