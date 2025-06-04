@@ -67,12 +67,11 @@ def get_metrics(
 
         best_index = f1_score_list.argmax()
         best_threshold = thresholds[best_index]
-
-        predict_labels = (test_error_score > best_threshold)
-        f1 = f1_score_list[best_index]
+        predict_labels = (test_error_score >= best_threshold)
 
     tn, fp, fn, tp = confusion_matrix(actual_labels, predict_labels).ravel()
 
+    f1 = f1_score(actual_labels, predict_labels)
     precision = precision_score(actual_labels, predict_labels)
     recall = recall_score(actual_labels, predict_labels)
     fnr = fn / (fn + tp)
