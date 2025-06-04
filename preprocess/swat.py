@@ -119,8 +119,8 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
     data_df.to_csv(processed_data_path, index=False)
     Logger.info(f'Saved to {processed_data_path} .')
 
-    # Save edge enums
-    Logger.info('Saving edge enums...')
+    # Save edge types
+    Logger.info('Saving edge types...')
     with open(_processed_data_path.parent / 'edge_types.json', 'w') as file:
         edge_types = [
             ['sensor', 'ss', 'sensor'],
@@ -129,7 +129,7 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
             ['actuator', 'aa', 'actuator']
         ]
         file.write(json.dumps(edge_types, indent=2))
-    Logger.info('Saved edge enums.')
+    Logger.info('Saved edge types.')
 
     return original_data_df
 

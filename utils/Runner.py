@@ -18,7 +18,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from datasets import HeteroICSDataset
-from enums import NodeConfig
+from data_types import NodeConfig
 from models import HeteroICS
 from .Arguments import Arguments
 from .Logger import Logger

@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from enums import NodeConfig
+from data_types import NodeConfig
 from .GraphLayer import GraphLayer
 from .OutputLayer import OutputLayer
 
