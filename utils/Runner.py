@@ -17,8 +17,8 @@ from torch.utils.data import DataLoader, Subset
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-from datasets import HeteroICSDataset
 from data_types import NodeConfig
+from datasets import HeteroICSDataset
 from models import HeteroICS
 from .Arguments import Arguments
 from .Logger import Logger

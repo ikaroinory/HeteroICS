@@ -8,6 +8,7 @@ from numpy import ndarray
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler
 
+from data_types import NodeConfig, NodeType
 from utils import Logger
 
 
@@ -27,11 +28,26 @@ def __downsample(data_np: ndarray, labels_np: ndarray, sample_len: int) -> tuple
     return downsampled_data_np, downsampled_labels_np
 
 
-def __normalize(train_data_df: DataFrame, test_data_df: DataFrame = None) -> ndarray:
-    normalizer = MinMaxScaler()
-    normalizer.fit(train_data_df)
+def __normalize(train_data_df: DataFrame, test_data_df: DataFrame = None, *, node_indices: dict[NodeType, list]) -> ndarray:
+    train_data_np = train_data_df.to_numpy()
 
-    return normalizer.transform(train_data_df) if test_data_df is None else normalizer.transform(test_data_df)
+    normalizer = MinMaxScaler()
+    normalizer.fit(train_data_np[:, node_indices['sensor']])
+
+    if test_data_df is None:
+        sensor_train_data_np = normalizer.transform(train_data_np[:, node_indices['sensor']])
+
+        train_data_np[node_indices['sensor']] = sensor_train_data_np
+
+        return train_data_np
+    else:
+        test_data_np = test_data_df.to_numpy()
+
+        sensor_test_data_np = normalizer.transform(test_data_np[:, node_indices['sensor']])
+
+        test_data_np[node_indices['sensor']] = sensor_test_data_np
+
+        return test_data_np
 
 
 def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10, train_df: DataFrame = None) -> DataFrame:
@@ -69,13 +85,13 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
 
     node_indices_path = _processed_data_path.parent / 'node_indices.json'
     with open(node_indices_path, 'w') as file:
-        node_indices = {
+        node_indices: dict[NodeType, list] = {
             'sensor': [data_df.columns.get_loc(sensor) for sensor in sensor_names],
             'actuator': [data_df.columns.get_loc(actuator) for actuator in actuator_names]
         }
         file.write(json.dumps(node_indices, indent=2))
     with open(_processed_data_path.parent / 'node_config.json', 'w') as file:
-        node_config = {
+        node_config: dict[NodeType, NodeConfig] = {
             'sensor': {
                 'value_type': 'float',
                 'index': [data_df.columns.get_loc(sensor) for sensor in sensor_names]
