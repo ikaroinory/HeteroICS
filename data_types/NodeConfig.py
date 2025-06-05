@@ -1,7 +1,6 @@
-from typing import Literal, NotRequired, TypedDict
+from typing import Literal, TypedDict
 
 
 class NodeConfig(TypedDict):
     value_type: Literal['float', 'enum']
-    value_list: NotRequired[list[int]]
     index: list[int]

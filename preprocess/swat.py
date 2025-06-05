@@ -98,7 +98,6 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
             },
             'actuator': {
                 'value_type': 'enum',
-                'value_list': [0, 0.5, 1],
                 'index': [data_df.columns.get_loc(actuator) for actuator in actuator_names]
             }
         }

@@ -16,7 +16,7 @@ class OptunaArguments:
         self.dtype = torch.float32
         self.device = 'cuda'
 
-        self.batch_size: int = 64
+        self.batch_size: int = 128
         self.epochs: int = 50
 
         self.slide_window: int = trial.suggest_int('slide_window', 5, 20)
@@ -29,8 +29,8 @@ class OptunaArguments:
             ('actuator', 'aa', 'actuator'): trial.suggest_int('k_aa', 1, 10),
         }
 
-        self.d_hidden: int = trial.suggest_categorical('d_hidden', [64, 128, 256, 512])
-        self.d_output_hidden: int = trial.suggest_int('d_output_hidden', 128, 1024, log=True)
+        self.d_hidden: int = trial.suggest_categorical('d_hidden', [64, 128, 256])
+        self.d_output_hidden: int = trial.suggest_int('d_output_hidden', 128, 256, log=True)
 
         self.num_heads: int = 8
         self.num_output_layer: int = trial.suggest_int('num_output_layer', 1, 10)  # best: 2

@@ -31,11 +31,6 @@
   },
   "actuator": {
     "value_type": "enum",
-    "value_list": [
-      0,
-      0.5,
-      1
-    ],
     "index": [
       2,
       3,

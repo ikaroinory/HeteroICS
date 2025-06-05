@@ -157,23 +157,17 @@ class Runner:
 
             sensor_output, actuator_output = self.__model(x)
 
-            sensor_loss = self.__sensor_loss(sensor_output, y[:, self.__model.node_indices['sensor']])
+            sensor_loss = self.__sensor_loss(sensor_output, y[:, self.node_config['sensor']['index']])
             sensor_loss.backward(retain_graph=True)
             for name, parameters in self.__model.named_parameters():
-                if parameters.grad is None:
-                    continue
-                if 'sensor' in name and 'output' in name:
+                if parameters.grad is not None and 'sensor' in name and 'output' in name:
                     grads['sensor'].append(Variable(parameters.grad.data.clone(), requires_grad=True))
 
-            actuator_loss = self.__actuator_loss(
-                actuator_output.reshape(-1, actuator_output.shape[-1]),
-                y[:, self.__model.node_indices['actuator']].long().reshape(-1)
-            )
+            actuator_output = actuator_output.reshape(-1, actuator_output.shape[-1])
+            actuator_loss = self.__actuator_loss(actuator_output, y[:, self.node_config['actuator']['index']].long().reshape(-1))
             actuator_loss.backward(retain_graph=True)
             for name, parameters in self.__model.named_parameters():
-                if parameters.grad is None:
-                    continue
-                if 'actuator' in name and 'output' in name:
+                if parameters.grad is not None and 'actuator' in name and 'output' in name:
                     grads['actuator'].append(Variable(parameters.grad.data.clone(), requires_grad=True))
 
             alpha, _ = MinNormSolver.find_min_norm_element(list(grads.values()))
@@ -205,10 +199,9 @@ class Runner:
             with torch.no_grad():
                 sensor_output, actuator_output = self.__model(x)
 
-                value_list = torch.tensor(self.node_config['actuator']['value_list'], dtype=self.args.dtype, device=self.args.device)
                 output = torch.zeros([x.shape[0], x.shape[1]], dtype=self.args.dtype, device=self.args.device)
                 output[:, self.__model.node_indices['sensor']] = sensor_output
-                output[:, self.__model.node_indices['actuator']] = value_list[actuator_output.argmax(dim=-1)]
+                output[:, self.__model.node_indices['actuator']] = actuator_output.argmax(dim=-1).to(self.args.dtype)
 
                 loss = self.__sensor_loss(output, y)
 
