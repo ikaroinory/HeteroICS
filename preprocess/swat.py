@@ -37,7 +37,7 @@ def __normalize(train_data_df: DataFrame, test_data_df: DataFrame = None, *, nod
     if test_data_df is None:
         sensor_train_data_np = normalizer.transform(train_data_np[:, node_indices['sensor']])
 
-        train_data_np[node_indices['sensor']] = sensor_train_data_np
+        train_data_np[:, node_indices['sensor']] = sensor_train_data_np
 
         return train_data_np
     else:
@@ -45,7 +45,7 @@ def __normalize(train_data_df: DataFrame, test_data_df: DataFrame = None, *, nod
 
         sensor_test_data_np = normalizer.transform(test_data_np[:, node_indices['sensor']])
 
-        test_data_np[node_indices['sensor']] = sensor_test_data_np
+        test_data_np[:, node_indices['sensor']] = sensor_test_data_np
 
         return test_data_np
 
@@ -111,9 +111,9 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
     data_df.drop(columns=['Normal/Attack'], inplace=True)
     original_data_df = data_df.copy()
     if model == 'train':
-        data_np = __normalize(data_df)
+        data_np = __normalize(data_df, node_indices=node_indices)
     else:
-        data_np = __normalize(train_df, data_df)
+        data_np = __normalize(train_df, data_df, node_indices=node_indices)
 
     Logger.info(f'Scaled.')
 
