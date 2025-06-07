@@ -1,0 +1,163 @@
+2025-06-06 22:13:38.397 | INFO     | Setting seed...
+2025-06-06 22:13:38.397 | INFO     | Loading data...
+2025-06-06 22:13:38.609 | INFO     | Building model...
+2025-06-06 22:13:38.611 | INFO     | Training...
+2025-06-06 22:13:41.502 | INFO     | Epoch 1:
+2025-06-06 22:13:41.502 | INFO     |  - Train loss: 0.26798385
+2025-06-06 22:13:41.503 | INFO     |  - Current best epoch: 1
+2025-06-06 22:13:44.495 | INFO     | Epoch 2:
+2025-06-06 22:13:44.496 | INFO     |  - Train loss: 0.08652859
+2025-06-06 22:13:44.497 | INFO     |  - Current best epoch: 2
+2025-06-06 22:13:47.638 | INFO     | Epoch 3:
+2025-06-06 22:13:47.638 | INFO     |  - Train loss: 0.08758411
+2025-06-06 22:13:47.638 | INFO     |  - Current best epoch: 2
+2025-06-06 22:13:50.715 | INFO     | Epoch 4:
+2025-06-06 22:13:50.715 | INFO     |  - Train loss: 0.06522312
+2025-06-06 22:13:50.716 | INFO     |  - Current best epoch: 4
+2025-06-06 22:13:53.881 | INFO     | Epoch 5:
+2025-06-06 22:13:53.881 | INFO     |  - Train loss: 0.06154059
+2025-06-06 22:13:53.882 | INFO     |  - Current best epoch: 5
+2025-06-06 22:13:56.983 | INFO     | Epoch 6:
+2025-06-06 22:13:56.983 | INFO     |  - Train loss: 0.04646659
+2025-06-06 22:13:56.984 | INFO     |  - Current best epoch: 6
+2025-06-06 22:14:00.037 | INFO     | Epoch 7:
+2025-06-06 22:14:00.038 | INFO     |  - Train loss: 0.04987700
+2025-06-06 22:14:00.038 | INFO     |  - Current best epoch: 6
+2025-06-06 22:14:03.081 | INFO     | Epoch 8:
+2025-06-06 22:14:03.081 | INFO     |  - Train loss: 0.23904933
+2025-06-06 22:14:03.084 | INFO     |  - Current best epoch: 6
+2025-06-06 22:14:06.146 | INFO     | Epoch 9:
+2025-06-06 22:14:06.146 | INFO     |  - Train loss: 0.18398510
+2025-06-06 22:14:06.146 | INFO     |  - Current best epoch: 6
+2025-06-06 22:14:09.066 | INFO     | Epoch 10:
+2025-06-06 22:14:09.066 | INFO     |  - Train loss: 0.04616068
+2025-06-06 22:14:09.068 | INFO     |  - Current best epoch: 10
+2025-06-06 22:14:12.124 | INFO     | Epoch 11:
+2025-06-06 22:14:12.124 | INFO     |  - Train loss: 0.03581895
+2025-06-06 22:14:12.125 | INFO     |  - Current best epoch: 11
+2025-06-06 22:14:15.012 | INFO     | Epoch 12:
+2025-06-06 22:14:15.012 | INFO     |  - Train loss: 0.03346407
+2025-06-06 22:14:15.014 | INFO     |  - Current best epoch: 12
+2025-06-06 22:14:17.905 | INFO     | Epoch 13:
+2025-06-06 22:14:17.905 | INFO     |  - Train loss: 0.03724241
+2025-06-06 22:14:17.905 | INFO     |  - Current best epoch: 12
+2025-06-06 22:14:20.823 | INFO     | Epoch 14:
+2025-06-06 22:14:20.823 | INFO     |  - Train loss: 0.03185091
+2025-06-06 22:14:20.825 | INFO     |  - Current best epoch: 14
+2025-06-06 22:14:23.735 | INFO     | Epoch 15:
+2025-06-06 22:14:23.735 | INFO     |  - Train loss: 0.03041636
+2025-06-06 22:14:23.737 | INFO     |  - Current best epoch: 15
+2025-06-06 22:14:26.718 | INFO     | Epoch 16:
+2025-06-06 22:14:26.718 | INFO     |  - Train loss: 0.09402561
+2025-06-06 22:14:26.718 | INFO     |  - Current best epoch: 15
+2025-06-06 22:14:29.650 | INFO     | Epoch 17:
+2025-06-06 22:14:29.650 | INFO     |  - Train loss: 0.03704936
+2025-06-06 22:14:29.650 | INFO     |  - Current best epoch: 15
+2025-06-06 22:14:32.677 | INFO     | Epoch 18:
+2025-06-06 22:14:32.677 | INFO     |  - Train loss: 0.03015716
+2025-06-06 22:14:32.678 | INFO     |  - Current best epoch: 18
+2025-06-06 22:14:35.720 | INFO     | Epoch 19:
+2025-06-06 22:14:35.720 | INFO     |  - Train loss: 0.04589912
+2025-06-06 22:14:35.720 | INFO     |  - Current best epoch: 18
+2025-06-06 22:14:38.764 | INFO     | Epoch 20:
+2025-06-06 22:14:38.764 | INFO     |  - Train loss: 0.03131902
+2025-06-06 22:14:38.764 | INFO     |  - Current best epoch: 18
+2025-06-06 22:14:41.816 | INFO     | Epoch 21:
+2025-06-06 22:14:41.817 | INFO     |  - Train loss: 0.21017861
+2025-06-06 22:14:41.817 | INFO     |  - Current best epoch: 18
+2025-06-06 22:14:44.838 | INFO     | Epoch 22:
+2025-06-06 22:14:44.838 | INFO     |  - Train loss: 0.36449342
+2025-06-06 22:14:44.838 | INFO     |  - Current best epoch: 18
+2025-06-06 22:14:47.811 | INFO     | Epoch 23:
+2025-06-06 22:14:47.811 | INFO     |  - Train loss: 0.08832154
+2025-06-06 22:14:47.811 | INFO     |  - Current best epoch: 18
+2025-06-06 22:14:50.819 | INFO     | Epoch 24:
+2025-06-06 22:14:50.819 | INFO     |  - Train loss: 0.03207400
+2025-06-06 22:14:50.819 | INFO     |  - Current best epoch: 18
+2025-06-06 22:14:53.851 | INFO     | Epoch 25:
+2025-06-06 22:14:53.851 | INFO     |  - Train loss: 0.02923325
+2025-06-06 22:14:53.853 | INFO     |  - Current best epoch: 25
+2025-06-06 22:14:56.822 | INFO     | Epoch 26:
+2025-06-06 22:14:56.822 | INFO     |  - Train loss: 0.02748720
+2025-06-06 22:14:56.824 | INFO     |  - Current best epoch: 26
+2025-06-06 22:14:59.886 | INFO     | Epoch 27:
+2025-06-06 22:14:59.886 | INFO     |  - Train loss: 0.02594716
+2025-06-06 22:14:59.888 | INFO     |  - Current best epoch: 27
+2025-06-06 22:15:02.943 | INFO     | Epoch 28:
+2025-06-06 22:15:02.943 | INFO     |  - Train loss: 0.02639677
+2025-06-06 22:15:02.943 | INFO     |  - Current best epoch: 27
+2025-06-06 22:15:05.988 | INFO     | Epoch 29:
+2025-06-06 22:15:05.988 | INFO     |  - Train loss: 0.02531581
+2025-06-06 22:15:05.989 | INFO     |  - Current best epoch: 29
+2025-06-06 22:15:09.039 | INFO     | Epoch 30:
+2025-06-06 22:15:09.039 | INFO     |  - Train loss: 0.03039531
+2025-06-06 22:15:09.039 | INFO     |  - Current best epoch: 29
+2025-06-06 22:15:12.108 | INFO     | Epoch 31:
+2025-06-06 22:15:12.108 | INFO     |  - Train loss: 0.02947893
+2025-06-06 22:15:12.108 | INFO     |  - Current best epoch: 29
+2025-06-06 22:15:15.149 | INFO     | Epoch 32:
+2025-06-06 22:15:15.149 | INFO     |  - Train loss: 0.03177425
+2025-06-06 22:15:15.149 | INFO     |  - Current best epoch: 29
+2025-06-06 22:15:18.239 | INFO     | Epoch 33:
+2025-06-06 22:15:18.240 | INFO     |  - Train loss: 0.02404595
+2025-06-06 22:15:18.241 | INFO     |  - Current best epoch: 33
+2025-06-06 22:15:21.278 | INFO     | Epoch 34:
+2025-06-06 22:15:21.278 | INFO     |  - Train loss: 0.02399337
+2025-06-06 22:15:21.279 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:24.313 | INFO     | Epoch 35:
+2025-06-06 22:15:24.313 | INFO     |  - Train loss: 0.03160594
+2025-06-06 22:15:24.313 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:27.317 | INFO     | Epoch 36:
+2025-06-06 22:15:27.317 | INFO     |  - Train loss: 0.03924291
+2025-06-06 22:15:27.317 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:30.267 | INFO     | Epoch 37:
+2025-06-06 22:15:30.267 | INFO     |  - Train loss: 0.02982842
+2025-06-06 22:15:30.267 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:33.192 | INFO     | Epoch 38:
+2025-06-06 22:15:33.192 | INFO     |  - Train loss: 0.02704735
+2025-06-06 22:15:33.192 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:36.130 | INFO     | Epoch 39:
+2025-06-06 22:15:36.130 | INFO     |  - Train loss: 0.02956334
+2025-06-06 22:15:36.130 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:39.048 | INFO     | Epoch 40:
+2025-06-06 22:15:39.048 | INFO     |  - Train loss: 0.03168915
+2025-06-06 22:15:39.048 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:41.987 | INFO     | Epoch 41:
+2025-06-06 22:15:41.987 | INFO     |  - Train loss: 0.03128850
+2025-06-06 22:15:41.987 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:45.024 | INFO     | Epoch 42:
+2025-06-06 22:15:45.024 | INFO     |  - Train loss: 0.03303448
+2025-06-06 22:15:45.034 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:48.080 | INFO     | Epoch 43:
+2025-06-06 22:15:48.080 | INFO     |  - Train loss: 0.04552698
+2025-06-06 22:15:48.080 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:51.064 | INFO     | Epoch 44:
+2025-06-06 22:15:51.064 | INFO     |  - Train loss: 0.02625387
+2025-06-06 22:15:51.064 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:54.051 | INFO     | Epoch 45:
+2025-06-06 22:15:54.051 | INFO     |  - Train loss: 0.03047061
+2025-06-06 22:15:54.051 | INFO     |  - Current best epoch: 34
+2025-06-06 22:15:57.118 | INFO     | Epoch 46:
+2025-06-06 22:15:57.119 | INFO     |  - Train loss: 0.04628677
+2025-06-06 22:15:57.119 | INFO     |  - Current best epoch: 34
+2025-06-06 22:16:00.248 | INFO     | Epoch 47:
+2025-06-06 22:16:00.248 | INFO     |  - Train loss: 0.04464873
+2025-06-06 22:16:00.248 | INFO     |  - Current best epoch: 34
+2025-06-06 22:16:03.225 | INFO     | Epoch 48:
+2025-06-06 22:16:03.225 | INFO     |  - Train loss: 0.02786591
+2025-06-06 22:16:03.225 | INFO     |  - Current best epoch: 34
+2025-06-06 22:16:06.260 | INFO     | Epoch 49:
+2025-06-06 22:16:06.260 | INFO     |  - Train loss: 0.03352326
+2025-06-06 22:16:06.260 | INFO     |  - Current best epoch: 34
+2025-06-06 22:16:09.300 | INFO     | Epoch 50:
+2025-06-06 22:16:09.300 | INFO     |  - Train loss: 0.02568252
+2025-06-06 22:16:09.300 | INFO     |  - Current best epoch: 34
+2025-06-06 22:16:09.302 | INFO     | Best epoch: 34
+2025-06-06 22:16:09.302 | INFO     |  - Valid loss: 0.02399337
+2025-06-06 22:16:09.302 | INFO     | Model save to saves/swat/20250606_221338.pth
+2025-06-06 22:16:09.302 | INFO     | Evaluating...
+2025-06-06 22:16:10.122 | INFO     |  - F1 score: 0.8648
+2025-06-06 22:16:10.122 | INFO     |  - Precision: 0.9618
+2025-06-06 22:16:10.122 | INFO     |  - Recall: 0.7856
+2025-06-06 22:16:10.123 | INFO     |  - FPR: 0.0043
+2025-06-06 22:16:10.123 | INFO     |  - FNR: 0.2144

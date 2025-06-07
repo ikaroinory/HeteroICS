@@ -1,0 +1,1 @@
+python main.py -b 128 -sw 5 -k 9 7 1 2 --d_hidden 64 --d_output_hidden 205 --num_output_layer 1 --nolog --model results/0.8648/20250606_221338.pth

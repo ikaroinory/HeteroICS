@@ -1,1 +1,0 @@
-python main.py -b 64 -sw 5 -k 10 1 4 3 --d_hidden 256 --d_output_hidden 192 --num_output_layer 1 --share_lr 0.00012721065639739805 --sensor_lr 0.008058291586585201 --actuator_lr 0.00015063147167058776
