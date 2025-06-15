@@ -227,7 +227,6 @@ class Runner:
 
         for epoch in tqdm(range(self.args.epochs)):
             train_loss = self.__train_epoch()
-            _, _ = self.__valid_epoch(self.__valid_dataloader)
 
             self.__writer.add_scalar('Loss/train', train_loss, epoch)
 

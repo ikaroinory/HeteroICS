@@ -71,7 +71,7 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int, trai
     Logger.info(f'Replacing Normal and Attack with 0 and 1...')
     if mode == 'train':
         data_df['Attack'] = 0
-    data_df['Attack'] = data_df['Attack'].astype(str).str.replace(r'\s+', '', regex=True).map({'0': 0, '-1': 1})
+    data_df['Attack'] = data_df['Attack'].astype(str).str.replace(r'\s+', '', regex=True).map({'1': 0, '-1': 1})
     Logger.info(f'Replaced.')
 
     # Fill missing values
@@ -153,9 +153,3 @@ def preprocess_wadi(original_data_path: tuple[str, str], processed_data_path: tu
 
     original_train_data_df = __preprocess(original_train_data_path, processed_train_data_path, sample_len)
     __preprocess(original_test_data_path, processed_test_data_path, sample_len, original_train_data_df)
-
-
-if __name__ == '__main__':
-    original_data_path = ('../data/original/wadi/WADI_14days_new.csv', '../data/original/wadi/WADI_attackdataLABLE.csv')
-    processed_data_path = ('../data/processed/wadi/train.csv', '../data/processed/wadi/test.csv')
-    preprocess_wadi(original_data_path, processed_data_path)

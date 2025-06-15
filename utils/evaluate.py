@@ -1,20 +1,15 @@
 import numpy as np
 import torch
-import torch.nn.functional as F
 from sklearn.metrics import confusion_matrix, f1_score, precision_recall_curve, precision_score, recall_score
 from torch import Tensor
 
 
-def get_total_error_score(result: tuple[Tensor, Tensor, Tensor], smooth_window: int, epsilon: float = 1e-2) -> Tensor:
+def get_total_error_score(result: tuple[Tensor, Tensor, Tensor], epsilon: float = 1e-2) -> Tensor:
     predict_result, actual_result, _ = result
 
     delta = (predict_result - actual_result).abs()
     iqr = delta.quantile(0.75, dim=0) - delta.quantile(0.25, dim=0)
     score = (delta - delta.quantile(0.5, dim=0)) / (iqr + epsilon)  # [*, num_nodes]
-
-    if smooth_window > 0:
-        score = score.unfold(0, smooth_window, 1).mean(-1)
-        score = F.pad(score, (0, 0, smooth_window - 1, 0), mode='constant')
 
     return score.max(dim=-1)[0]
 
@@ -43,16 +38,12 @@ def get_f1_with_label(error_score: Tensor, actual_label: Tensor) -> tuple[float,
     return f1_list[index].item(), predict_label_list[index]
 
 
-def get_metrics(
-    test_result: tuple[Tensor, Tensor, Tensor],
-    valid_result: tuple[Tensor, Tensor, Tensor] = None,
-    smooth_window: int = 0
-) -> tuple[float, float, float, float, float]:
-    test_error_score = get_total_error_score(test_result, smooth_window)
+def get_metrics(test_result: tuple[Tensor, Tensor, Tensor], valid_result: tuple[Tensor, Tensor, Tensor] = None) -> tuple[float, float, float, float, float]:
+    test_error_score = get_total_error_score(test_result)
 
     actual_labels = test_result[2].cpu()
     if valid_result is not None:
-        valid_error_score = get_total_error_score(valid_result, smooth_window)
+        valid_error_score = get_total_error_score(valid_result)
 
         threshold = torch.max(valid_error_score)
 
