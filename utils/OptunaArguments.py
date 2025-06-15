@@ -17,7 +17,7 @@ class OptunaArguments:
         self.device = 'cuda'
 
         self.batch_size: int = 128
-        self.epochs: int = 50
+        self.epochs: int = 100
 
         self.slide_window: int = trial.suggest_int('slide_window', 5, 20)
         self.slide_stride: int = 1
@@ -29,8 +29,8 @@ class OptunaArguments:
             ('actuator', 'aa', 'actuator'): trial.suggest_int('k_aa', 1, 10),
         }
 
-        self.d_hidden: int = trial.suggest_categorical('d_hidden', [64, 128, 256])
-        self.d_output_hidden: int = trial.suggest_int('d_output_hidden', 128, 256, log=True)
+        self.d_hidden: int = trial.suggest_categorical('d_hidden', [64, 128, 256, 512])
+        self.d_output_hidden: int = trial.suggest_int('d_output_hidden', 128, 512, log=True)
 
         self.num_heads: int = 8
         self.num_output_layer: int = trial.suggest_int('num_output_layer', 1, 10)  # best: 2
@@ -40,6 +40,6 @@ class OptunaArguments:
         self.actuator_lr: float = trial.suggest_float('actuator_lr', 1e-4, 1e-2, log=True)
         self.dropout: float = 0
 
-        self.early_stop: int = 50
+        self.early_stop: int = 100
 
         self.log: bool = True
