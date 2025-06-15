@@ -149,7 +149,7 @@ def objective(trial: Trial) -> float:
 
 if __name__ == '__main__':
     db_string = f'sqlite:///../optuna.db'
-    study = optuna.create_study(study_name='Hetero - MTL - 0605', direction='maximize', storage=db_string, load_if_exists=True)
+    study = optuna.create_study(study_name='Hetero - WADI - 0615', direction='maximize', storage=db_string, load_if_exists=True)
 
     study.optimize(objective, n_trials=1000)
 
