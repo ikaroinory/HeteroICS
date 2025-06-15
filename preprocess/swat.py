@@ -51,7 +51,7 @@ def __normalize(train_data_df: DataFrame, test_data_df: DataFrame = None, *, nod
 
 
 def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10, train_df: DataFrame = None) -> DataFrame:
-    model: str = 'train' if train_df is None else 'test'
+    mode: str = 'train' if train_df is None else 'test'
 
     _processed_data_path = Path(processed_data_path)
     _processed_data_path.parent.mkdir(parents=True, exist_ok=True)
@@ -109,7 +109,7 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
     data_labels = data_df['Normal/Attack']
     data_df.drop(columns=['Normal/Attack'], inplace=True)
     original_data_df = data_df.copy()
-    if model == 'train':
+    if mode == 'train':
         data_np = __normalize(data_df, node_indices=node_indices)
     else:
         data_np = __normalize(train_df, data_df, node_indices=node_indices)
@@ -124,7 +124,7 @@ def __preprocess(data_path: str, processed_data_path: str, sample_len: int = 10,
     Logger.info('Down-sampled.')
 
     # Drop the first 2160 rows
-    if model == 'train':
+    if mode == 'train':
         Logger.info(f'Dropping the first 2160 rows...')
         data_df = data_df.iloc[2160:]
         Logger.info(f'Dropped.')

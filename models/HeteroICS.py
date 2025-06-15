@@ -38,20 +38,24 @@ class HeteroICS(nn.Module):
             nn.Embedding(num_embeddings=self.num_nodes, embedding_dim=d_hidden),
             nn.BatchNorm1d(d_hidden)
         )
-        self.x_proj_layer_dict = nn.ModuleDict({
-            node_type: nn.Sequential(
-                nn.Linear(sequence_len, d_hidden),
-                nn.BatchNorm1d(d_hidden)
-            )
-            for node_type in self.node_types
-        })
-        self.v_proj_layer_dict = nn.ModuleDict({
-            node_type: nn.Sequential(
-                nn.Linear(d_hidden, d_hidden),
-                nn.BatchNorm1d(d_hidden)
-            )
-            for node_type in self.node_types
-        })
+        self.x_proj_layer_dict = nn.ModuleDict(
+            {
+                node_type: nn.Sequential(
+                    nn.Linear(sequence_len, d_hidden),
+                    nn.BatchNorm1d(d_hidden)
+                )
+                for node_type in self.node_types
+            }
+        )
+        self.v_proj_layer_dict = nn.ModuleDict(
+            {
+                node_type: nn.Sequential(
+                    nn.Linear(d_hidden, d_hidden),
+                    nn.BatchNorm1d(d_hidden)
+                )
+                for node_type in self.node_types
+            }
+        )
         self.graph_layer = GraphLayer(sequence_len, d_hidden, num_heads, dropout, node_indices=node_indices, edge_types=edge_types)
         self.graph_output_process_layer = nn.Sequential(
             nn.BatchNorm1d(d_hidden),
